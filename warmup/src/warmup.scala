@@ -43,12 +43,14 @@ object Expr {
   // One simple test case:
   // (* 2 (+ 1 (* 3 2))) should duplicate to (+ (+ 1 (+ 3 3)) (+ 1 (+ 3 3)))
   def main(argv: Array[String]) {
-    val e: Expr = Times(Num(2), Plus(Num(1), Times(Num(2), Plus(Num(1), Times(Num(2), Num(3))))))
+    //val e: Expr = Times(Num(2), Plus(Num(1), Times(Num(2), Plus(Num(1), Times(Num(2), Num(3))))))
+    // val e: Expr = Times(Num(2), Plus(Num(1), Times(Num(2), Plus(Num(1), Times(Num(2),  Times(Num(2), Num(2)))))))
+    val e: Expr = Times(Num(2), Plus(Num(1), Times(Num(2), Plus(Num(1), Times(Num(2), Times(Num(2), Num(3)))))))
     Console.out.print(e.print + ".duplicate")
     Console.out.print(" ->  ")
     Console.out.print(e.duplicate.print)
     Console.out.print(" => ")
     Console.out.println(e.copy.eval)
-    
+
   }
 }
