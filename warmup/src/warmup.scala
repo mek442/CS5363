@@ -12,7 +12,7 @@ object Expr {
     def print = "(+ " + e1.print + " " + e2.print + ")"
     def copy: Expr = Plus(e1.copy, e2.copy)
     def duplicate: Expr = {
-      Plus(e1.copy.duplicate, e2.copy.duplicate)
+      Plus(e1.duplicate, e2.duplicate)
     }
   }
 
