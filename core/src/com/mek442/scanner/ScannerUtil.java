@@ -1,5 +1,8 @@
 package com.mek442.scanner;
-
+/**
+ * @author Shaikh Mostafa<mek442@my.utsa.edu>
+ * 
+ */
 public class ScannerUtil {
 
 	public static boolean isWhitespace(char pCharacter) {
@@ -24,4 +27,6 @@ public class ScannerUtil {
 	public static boolean isPartOfIdentifier(char c) {
 		return (isStartOfIdentifier(c) || isDigit(c));
 	}
+	
+	
 }

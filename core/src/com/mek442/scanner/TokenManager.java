@@ -1,9 +1,14 @@
 package com.mek442.scanner;
 
+
 import java.io.FileNotFoundException;
 import java.util.Stack;
 import java.util.Vector;
 
+/**
+ * @author Shaikh Mostafa<mek442@my.utsa.edu>
+ * 
+ */
 public class TokenManager {
 	private Scanner mScanner;
 
@@ -26,7 +31,7 @@ public class TokenManager {
 
 		isLookingAhead = false;
 	}
-	
+
 	public TokenWord previousToken() {
 		return previousToken;
 	}
@@ -39,13 +44,24 @@ public class TokenManager {
 		return token;
 	}
 
-	
 	public void recordPosition() {
 		isLookingAhead = true;
 		mQueueStack.push(mNextQueue);
 		mNextQueue = new Vector<TokenWord>();
 		mNextQueue.add(previousToken);
 		mNextQueue.add(token);
+	}
+
+	public void next() {
+		previousToken = token;
+		if (mBacktrackingQueue.size() == 0) {
+			token = mScanner.getNextToken();
+		} else {
+			token = mBacktrackingQueue.remove(0);
+		}
+		if (isLookingAhead) {
+			mNextQueue.add(token);
+		}
 	}
 
 	public void returnToPosition() {
@@ -60,20 +76,27 @@ public class TokenManager {
 		previousToken = mBacktrackingQueue.remove(0);
 		token = mBacktrackingQueue.remove(0);
 	}
+
 	
-	public void next() {
-		previousToken = token;
-		if (mBacktrackingQueue.size() == 0) {
-			token = mScanner.getNextToken();
-		} else {
-			token = mBacktrackingQueue.remove(0);
-		}
-		if (isLookingAhead) {
-			mNextQueue.add(token);
-		}
+	public static void main(String[] args) {
+		TokenManager scanner = null;
+	        try {
+	            scanner = new TokenManager("C:\\jagsource\\test1.txt");
+	        } catch (FileNotFoundException e) {
+	        	
+	             e.printStackTrace();
+	        }
+
+	        
+	            // Just tokenize input and print the tokens to STDOUT
+	            TokenWord token;
+	            do {
+	                scanner.next();
+	                token = scanner.token();
+	                System.out.printf("%d\t : %s = %s\n", token.getLineNumber(), token.getIdentifier(),token.getWord());
+	            } while (token.getWord() != Token.EOF);
+	           
+	        
 	}
-
-
-	
 
 }

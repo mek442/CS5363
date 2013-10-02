@@ -20,20 +20,22 @@ public class Scanner {
 	private char character;
 
 	private int lineNumber;
+	
+	final static char EOFCH = (char) -1;
 
 	public Scanner(String fileName) throws FileNotFoundException {
 
 		this.mFileName = fileName;
 		this.mInput = new InputReader(fileName);
 		isError = false;
-
+        mReservedKeyWord = new Hashtable<String, Token>();
 		loadReservedKeyWord();
 	}
 
-	public boolean hasError(){
+	public boolean hasError() {
 		return isError;
 	}
-	
+
 	private void reportError(String message, Object... args) {
 		isError = true;
 		System.err.printf("%s:%d: ", mFileName, lineNumber);
@@ -110,23 +112,31 @@ public class Scanner {
 
 				return getNextToken();
 			}
-			
+		case '%':	readNextCharacter();
+		buffer = new StringBuffer();
+			while ( character!='\n') {
+				buffer.append(character);
+				readNextCharacter();
+			}
+			System.err.println(buffer.toString());
+			return getNextToken();
+		case EOFCH : return new TokenWord(Token.EOF, lineNumber);	
 		case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            buffer = new StringBuffer();
-            while (ScannerUtil.isDigit(character)) {
-                buffer.append(character);
-                readNextCharacter();
-            }
-            return new TokenWord(Token.NUM, buffer.toString(), lineNumber);
+		case '1': 
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			buffer = new StringBuffer();
+			while (ScannerUtil.isDigit(character)) {
+				buffer.append(character);
+				readNextCharacter();
+			}
+			return new TokenWord(Token.NUM, buffer.toString(), lineNumber);
 
 		default:
 			if (ScannerUtil.isStartOfIdentifier(character)) {
@@ -136,10 +146,9 @@ public class Scanner {
 					readNextCharacter();
 				}
 				String identifier = buffer.toString();
-				if(identifier.equalsIgnoreCase("true") || identifier.equalsIgnoreCase("false")){
-				 return new TokenWord(Token.BOOLLIT, identifier, lineNumber);	
-				}
-				else if (mReservedKeyWord.containsKey(identifier)) {
+				if (identifier.equalsIgnoreCase("true") || identifier.equalsIgnoreCase("false")) {
+					return new TokenWord(Token.BOOLLIT, identifier, lineNumber);
+				} else if (mReservedKeyWord.containsKey(identifier)) {
 					return new TokenWord(mReservedKeyWord.get(identifier), lineNumber);
 				} else {
 					return new TokenWord(Token.IDENT, identifier, lineNumber);

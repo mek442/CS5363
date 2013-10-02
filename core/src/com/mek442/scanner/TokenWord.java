@@ -6,7 +6,7 @@ package com.mek442.scanner;
 public class TokenWord {
 	private Token word;
 	private int lineNumber;
-	private String identifier;
+	private String identifier="";
 	
 	public TokenWord(Token pToken, int lineNumber) {
 		this.word = pToken;
@@ -25,6 +25,10 @@ public class TokenWord {
 	
 	public Token getWord() {
 		return this.word;
+	}
+	
+	public String getIdentifier() {
+		return this.identifier;
 	}
 
 }

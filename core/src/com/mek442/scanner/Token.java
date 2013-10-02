@@ -12,7 +12,7 @@ public enum Token {
 	BOOL("bool"), INT("int"), IF("if"), THEN("then"), ELSE("else"), BEGIN("begin"), END("end"), WHILE("while"), DO("do"), PROGRAM(
 			"program"), VAR("var"), AS("as"), LP("("), RP(")"), ASGN(":="), SC(";"), MUL("*"), DIV("div"), MOD("mod"), PLUS(
 			"+"), MINUS("-"), EQUAL("="), NOT_EQUAL("!="), LT("<"), GT(">"), LT_EQUAL("<="), GT_EQUAL(">="), WRITEINT(
-			"writeInt"), READINT("readInt"),NUM("num"),BOOLLIT("boollit"),IDENT("ident");
+			"writeInt"), READINT("readInt"),NUM("num"),BOOLLIT("boollit"),IDENT("ident"),EOF("EOF");
 
 	private String name;
 
