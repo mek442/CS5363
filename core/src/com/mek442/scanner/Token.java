@@ -8,16 +8,16 @@ import java.util.List;
  * @author Shaikh Mostafa<mek442@my.utsa.edu>
  * 
  */
-enum Token {
+public enum Token {
 	BOOL("bool"), INT("int"), IF("if"), THEN("then"), ELSE("else"), BEGIN("begin"), END("end"), WHILE("while"), DO("do"), PROGRAM(
 			"program"), VAR("var"), AS("as"), LP("("), RP(")"), ASGN(":="), SC(";"), MUL("*"), DIV("div"), MOD("mod"), PLUS(
-			"+"), MINUS("-"), EQUAL("="), NOT_EQUAL("!="), LT("<"), GT(">"), LT_EQUAL("<="), GT_EQUAL(">="),
-			WRITEINT("writeInt"),READINT("readInt");
+			"+"), MINUS("-"), EQUAL("="), NOT_EQUAL("!="), LT("<"), GT(">"), LT_EQUAL("<="), GT_EQUAL(">="), WRITEINT(
+			"writeInt"), READINT("readInt"),NUM("num"),BOOLLIT("boollit"),IDENT("ident");
 
 	private String name;
 
 	Token(String pName) {
-		this.name = name;
+		this.name = pName;
 	}
 
 	public String getValue() {
@@ -35,5 +35,6 @@ enum Token {
 	public List<Token> getOP4() {
 		return Collections.unmodifiableList(Arrays.asList(EQUAL, NOT_EQUAL, LT, LT_EQUAL, GT, GT_EQUAL));
 	}
+	
 
 }
