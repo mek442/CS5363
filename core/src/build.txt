@@ -1,0 +1,6 @@
+javac com/mek442/scanner/*.java
+javac com/mek442/parser/*.java
+javac com/mek442/node/*.java 
+javac com/mek442/tl13/*.java 
+
+java com/mek442/tl13/Compiler "inputfile"
