@@ -112,16 +112,13 @@ public class Parser {
      * @return the statement sequence
      */
 	private StatementSequence parseStatementSequences() {
-		System.err.println("state squence");
 		
 		Statement statement = parseStatement();
 		TokenWord token = mTokenManager.token();
 		mustBe(Token.SC);
 
 		StatementSequence parseStatementSequences = new StatementSequence(null, null, null);
-		System.err.println("outside "+ mTokenManager.token());
 		if (Token.getStatement().contains(mTokenManager.token().getWord())) {
-			System.err.println("inside "+ token.getWord());
 			parseStatementSequences = parseStatementSequences();
 
 		}
@@ -143,7 +140,6 @@ public class Parser {
 		IfStatement parseIfStatement = null;
 		WhileStatement parseWhileStatement = null;
 		WriteInt parseWriteExpression = null;
-		System.err.println("statement "+ mTokenManager.token().getWord());
 		if(isMatch(Token.IDENT)){
 		   	 parseAssignment = parseAssignment();
 		}else if(isMatch(Token.IF)){
@@ -323,7 +319,6 @@ public class Parser {
 	 * @return the term
 	 */
 	private Term parseTerm() {
-		System.out.println("term...");
 		Factor parseFactor = parseFactor();
 		Term1 parseTerm1 = parseTerm1();
 
@@ -341,7 +336,6 @@ public class Parser {
 	 */
 	private Term1 parseTerm1() {
 		TokenWord token = mTokenManager.token();
-		System.out.println("term1..."+ token.getWord());
 		if (haveExpectedToekn(Token.MUL) || haveExpectedToekn(Token.MOD) || haveExpectedToekn(Token.DIV)) {
 
 			Factor parseFactor = parseFactor();
@@ -364,7 +358,6 @@ public class Parser {
 	private Factor parseFactor(){
 		
 		 TokenWord token = mTokenManager.token();
-		 System.out.println("factor..."+ token.getWord());
 		if (haveExpectedToekn(Token.IDENT)|| haveExpectedToekn(Token.NUM) || haveExpectedToekn(Token.BOOLLIT)) {
 		 return new Factor(token,null,null);
 		}else{
@@ -390,7 +383,6 @@ public class Parser {
 
 	public Declaration parseDeclaration() {
 		TokenWord tokenVar = mTokenManager.token();
-		System.err.println("declar "+ tokenVar.getWord());
 		
 		mustBe(Token.VAR);
 		TokenWord tokenID = mTokenManager.token();
@@ -433,13 +425,12 @@ public class Parser {
 	 * @param pToken the token
 	 */
 	private void mustBe(Token pToken) {
-		System.err.println(mTokenManager.token().getWord() +"  - "+ pToken);
 		if (mTokenManager.token().getWord() == pToken) {
 			isRecovered = true;
 			mTokenManager.next();
 		} else if (isRecovered) {
 			isRecovered = false;
-			reportError("%s found where %s sought", mTokenManager.token(), mTokenManager.token().getWord());
+			reportError("%s found where %s sought in line no %d", mTokenManager.token(), pToken, mTokenManager.token().getLineNumber());
 		} else {
 			// Do not report the (possibly spurious) error,
 			// but rather attempt to recover by forcing a match.

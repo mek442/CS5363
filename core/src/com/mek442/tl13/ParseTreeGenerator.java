@@ -1,4 +1,4 @@
-package edu.utsa.tl13;
+package com.mek442.tl13;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,25 +11,28 @@ import com.mek442.node.Program;
 import com.mek442.parser.Parser;
 
 public class ParseTreeGenerator {
-	Program mProgram;
-
-	public ParseTreeGenerator(Program pProgram) {
-		mProgram = pProgram;
+  
+	Parser mParser;
+	
+	public ParseTreeGenerator(Parser pParser) {
+		mParser = pParser;
+				
 	}
 
 	public String produceParseTree() {
+		Program program = mParser.startParse();
 		String output = "digraph parseTree { \n"  +" ordering=out; \n";
-		output = output + mProgram.getOutPut(Counter.getInstance(), 0) + "\n }";
+		output = output + program.getOutPut(Counter.getInstance(), 0) + "\n }";
 		return output;
 	}
 
-	public void writToFile(String pContent) {
+	public void writToFile(String pContent, String fileName) {
 		FileOutputStream fop = null;
 		File file;
 
 		try {
 
-			file = new File("C:\\Users\\Mostafa\\git\\mek442\\core\\tests\\result.pt.dot");
+			file = new File(fileName);
 			fop = new FileOutputStream(file);
 
 			if (!file.exists()) {
@@ -59,15 +62,7 @@ public class ParseTreeGenerator {
 	}
 
 	public static void main(String[] args) {
-		try {
-			Parser parser = new Parser("C:\\Users\\Mostafa\\git\\mek442\\core\\tests\\test2.txt");
-			Program startParse = parser.startParse();
-			ParseTreeGenerator parseTreeGenerator = new ParseTreeGenerator(startParse);
-			parseTreeGenerator.writToFile(parseTreeGenerator.produceParseTree());
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 
 }

@@ -1,0 +1,77 @@
+Numbers, Literals, and Identifiers:
+
+num = [1-9][0-9]*|0
+boollit = false|true
+ident = [A-Z][A-Z0-9]*
+
+Symbols and Operators:
+
+LP = "("
+RP = ")"
+ASGN = ":="
+SC = ";"
+OP2 = "*" | "div" | "mod"
+OP3 = "+" | "-"
+OP4 = "=" | "!=" | "<" | ">" | "<=" | ">="
+
+Keywords:
+
+IF = "if"
+THEN = "then"
+ELSE = "else"
+BEGIN = "begin"
+END = "end"
+WHILE = "while"
+DO = "do"
+PROGRAM = "program"
+VAR = "var"
+AS = "as"
+INT = "int"
+BOOL = "bool"
+
+Built-in Procedures:
+
+WRITEINT = "writeInt"
+READINT = "readInt"
+
+BNF Grammar:
+
+<program> ::= PROGRAM <declarations> BEGIN <statementSequence> END
+
+<declarations> ::= VAR ident AS <type> SC <declarations>
+               | empty
+
+<type> ::= INT | BOOL
+
+<statementSequence> ::= <statement> SC <statementSequence>
+                    |empty
+
+<statement> ::= <assignment>
+            | <ifStatement>
+            | <whileStatement>
+            | <writeInt>
+
+<assignment> ::= ident ASGN <assignment1>
+<assignment1> ::= <expression> | READINT
+
+<ifStatement> ::= IF <expression> THEN <statementSequence> <elseClause> END
+
+<elseClause> ::= ELSE <statementSequence> | empty
+
+<whileStatement> ::= WHILE <expression> DO <statementSequence> END
+
+<writeInt> ::= WRITEINT <expression>
+
+<expression> ::= <simpleExpression> <expression1>
+<expression1> ::= OP4 <simpleExpression> |empty
+
+<simpleExpression> ::= <term> <simpleExpression1>
+<simpleExpression1> ::= OP3 <term> |empty
+
+<term> ::= <factor><term1>
+
+<term1> ::= OP2 <factor>|empty
+
+<factor> ::= ident | num  | boollit  | LP <expression> RP
+
+
