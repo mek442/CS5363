@@ -52,7 +52,7 @@ public class ParseTreeGenerator {
 		if (pNode == null)
 			return;
 		boolean isError = false;
-		String color = "white";
+		String color = "/x11/lightgrey";
 		if (pNode.getTokenValue() != null) {
 			TokenWord tokenValue = father.getTokenValue();
 			Token currentToekn = pNode.getTokenValue().getWord();
@@ -72,28 +72,28 @@ public class ParseTreeGenerator {
 				attribute.setValue(Token.INT);
 				pNode.setAttribute(attribute.getName(), attribute);
 				father.setAttribute(attribute.getName(), attribute);
-				if(Token.getArithOP().contains(currentToekn)){
-					color ="#feebe2";
-				}else {
-					color ="#e0f3f8";
+				if (Token.getArithOP().contains(currentToekn)) {
+					color = "/pastel13/3";
+				} else {
+					color = "/pastel13/2";
 				}
-			}else if(currentToekn== Token.IF || currentToekn == Token.WHILE){
+			} else if (currentToekn == Token.IF || currentToekn == Token.WHILE) {
 				Attribute attribute = new Attribute();
 				attribute.setName("type");
 				attribute.setValue(Token.BOOL);
 				pNode.setAttribute(attribute.getName(), attribute);
-				color="#e0e0e0";
-			}else if(currentToekn== Token.THEN){
-				
+				// color = "#e0e0e0";
+			} else if (currentToekn == Token.THEN) {
+
 			} else if (currentToekn == Token.NUM) {
 				TokenWord word = pNode.getTokenValue();
 				long value = Long.parseLong(word.getIdentifier().trim());
 				Attribute temp = father.getAttributes().get("type");
 				if (temp != null && temp.getValue() != Token.INT) {
-					System.err.println("Type mis match " + Token.NUM);
+					System.err.println("TYPE_ERROR " + Token.NUM);
 					isError = true;
 				} else if (value > 2147483647 || value < 0) {
-					System.err.println("Integer overflow " + Token.NUM);
+					System.err.println("TYPE_ERROR " + Token.NUM);
 					isError = true;
 				} else {
 					Attribute attribute = new Attribute();
@@ -106,10 +106,18 @@ public class ParseTreeGenerator {
 				Attribute temp = father.getAttributes().get(pNode.getTokenValue().getIdentifier());
 				Attribute temp1 = father.getAttributes().get("type");
 				if (temp != null && temp1 != null && temp.getValue() != temp1.getValue()) {
-					System.err.println("Type mis match " + pNode.getTokenValue().getIdentifier());
+					System.err.println("TYPE_ERROR " + pNode.getTokenValue().getIdentifier());
 					isError = true;
 				} else if (temp == null) {
-
+					for (Node tempNode : pNode.getChildNodes()) {
+						if (tempNode.getTokenValue() != null) {
+							Token typeToken = tempNode.getTokenValue().getWord();
+							if (typeToken == Token.BOOL) {
+								color = "/pastel13/2";
+							} else
+								color = "/pastel13/3";
+						}
+					}
 				} else {
 					Attribute attribute = new Attribute();
 					attribute.setName("type");
@@ -119,17 +127,16 @@ public class ParseTreeGenerator {
 						attribute.setValue(temp.getValue());
 					pNode.setAttribute(attribute.getName(), attribute);
 					if (temp.getValue() == Token.BOOL) {
-						color = "#f1b6da";
+						color = "/pastel13/2";
 					} else
-						color = "#fed9a6";
+						color = "/pastel13/3";
 					// attribute.setName("type");
 					father.setAttribute(attribute.getName(), attribute);
 				}
 			} else if (currentToekn == Token.BOOLLIT) {
 				Attribute temp = father.getAttributes().get("type");
 				if (temp != null && temp.getValue() != Token.BOOL) {
-					System.err.println("Type mis match " + Token.BOOLLIT + " " + pNode.getCount() + " "
-							+ temp.getValue());
+					System.err.println("TYPE_ERROR " + Token.BOOLLIT + " " + pNode.getCount() + " " + temp.getValue());
 					isError = true;
 				} else {
 					Attribute attribute = new Attribute();
@@ -137,12 +144,12 @@ public class ParseTreeGenerator {
 					attribute.setValue(Token.BOOLLIT);
 					pNode.setAttribute(attribute.getName(), attribute);
 					father.setAttribute(attribute.getName(), attribute);
-					color="#decbe4";
+					color = "/pastel13/2";
 				}
 			} else if (currentToekn == Token.READINT) {
 				Attribute temp = father.getAttributes().get("type");
 				if (temp != null && temp.getValue() != Token.INT) {
-					System.err.println("Type mis match " + Token.READINT);
+					System.err.println("TYPE_ERROR " + Token.READINT);
 					isError = true;
 				}
 			} else if (currentToekn == Token.WRITEINT) {
@@ -154,19 +161,17 @@ public class ParseTreeGenerator {
 				father.setAttribute(attribute.getName(), attribute);
 			}
 
-			Token printToken =pNode.getTokenValue().getWord();
+			Token printToken = pNode.getTokenValue().getWord();
 			String label = NodeUtil.Label.replace("#", "" + pNode.getCount());
 			if (isError) {
-				label = label.replace("$", "red");
+				label = label.replace("$", "/pastel13/1");
 			} else {
-				
+
 				if (printToken == Token.NUM) {
-					color = "#d9ef8b";
-				}else if(printToken == Token.ASGN){
-					color ="#e6f5c9";
-				}else if(printToken == Token.EQUAL){
-					color ="#ffff99";
-				} 
+					color = "/pastel13/3";
+				} else if (printToken == Token.EQUAL) {
+					color = "/pastel13/2";
+				}
 				label = label.replace("$", color);
 			}
 			label = label.replace("@", getTokenValue(pNode));
@@ -182,19 +187,21 @@ public class ParseTreeGenerator {
 		int fatherCount = fCounter;// pCounter.getPrevCount();
 		if (pNode instanceof Program) {
 			String program = NodeUtil.Program;
-			buildASTview(0, pNode.getCount(), pBuffer, program);
+			buildASTview(0, pNode.getCount(), pBuffer, program, color);
 
 		}
 
 		if (pNode instanceof Declaration) {
-			String program = "dec-list";
-			buildASTview(father.getCount(), pNode.getCount(), pBuffer, program);
+			String program = "decl";
+			if (pNode.getChildNodes().size() > 0)
+				buildASTview(father.getCount(), pNode.getCount(), pBuffer, program, "white");
 
 		}
 
 		if (pNode instanceof StatementSequence) {
-			String program = "state-list";
-			buildASTview(father.getCount(), pNode.getCount(), pBuffer, program);
+			String program = "stmt";
+			if (pNode.getChildNodes().size() > 0)
+				buildASTview(father.getCount(), pNode.getCount(), pBuffer, program, "white");
 
 		}
 
@@ -204,8 +211,7 @@ public class ParseTreeGenerator {
 		for (Node node : childNodes) {
 			if (pNode != null) {
 				attributes.putAll(pNode.getAttributes());
-				if(pNode.getTokenValue()!=null && pNode.getTokenValue().getWord() == Token.GT_EQUAL){
-					System.err.println("Mostafa");
+				if (pNode.getTokenValue() != null && pNode.getTokenValue().getWord() == Token.GT_EQUAL) {
 				}
 
 				if (node instanceof Declaration || node instanceof StatementSequence) {
@@ -236,18 +242,17 @@ public class ParseTreeGenerator {
 	}
 
 	private void setAttributes(Node node, Map<String, Attribute> pAttributes) {
-		if(node.getTokenValue()!=null &&Token.getINTOP().contains(node.getTokenValue().getWord())){
+		if (node.getTokenValue() != null && Token.getINTOP().contains(node.getTokenValue().getWord())) {
 			Attribute attribute = new Attribute();
 			attribute.setValue(Token.INT);
 
 			node.setAttribute("type", attribute);
 		}
-		 //  System.err.println("Nahid Mostafa "+node.getTokenValue().getWord());
+		// System.err.println("Nahid Mostafa "+node.getTokenValue().getWord());
 		Set<String> keySet = pAttributes.keySet();
 		for (String key : keySet) {
 			Attribute attribute = pAttributes.get(key);
 			if (Token.getINTOP().contains(attribute.getValue())) {
-				 System.err.println(" Mostafa "+node.getTokenValue().getWord());
 				if (key.equalsIgnoreCase("type")) {
 					attribute.setValue(Token.INT);
 
@@ -263,18 +268,21 @@ public class ParseTreeGenerator {
 
 	private String getTokenValue(Node pNode) {
 		Token word = pNode.getTokenValue().getWord();
-		if (Token.IDENT == word || Token.NUM == word) {
+		if (Token.IDENT == word || Token.NUM == word || Token.BOOLLIT == word) {
 			return pNode.getTokenValue().getIdentifier();
 		}
 		return pNode.getTokenValue().getWord().getValue();
 	}
 
-	private void buildASTview(int fCounter, int cCounter, StringBuffer pBuffer, String program) {
+	private void buildASTview(int fCounter, int cCounter, StringBuffer pBuffer, String program, String color) {
 
 		pBuffer.append("\n");
 		String label = NodeUtil.Label.replace("#", "" + cCounter);
 		label = label.replace("@", program);
-		label = label.replace("$", "white");
+		label = label.replace("$", color);
+		if (!program.equalsIgnoreCase("program")) {
+			label = label.replace("box", "none");
+		}
 		pBuffer.append(label);
 		pBuffer.append("\n");
 		if (!program.equalsIgnoreCase("program")) {
@@ -303,7 +311,6 @@ public class ParseTreeGenerator {
 
 			fop.flush();
 			fop.close();
-			System.out.println("Done");
 
 		} catch (IOException e) {
 			e.printStackTrace();

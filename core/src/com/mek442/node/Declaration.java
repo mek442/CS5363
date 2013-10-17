@@ -152,7 +152,6 @@ Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
 	public List<Node> getChildNodes() {
 		List<Node> nodes = new ArrayList<Node>();
 		List<Node> nodeType = new ArrayList<Node>();
-		System.out.println("declaration");
 		
 		if(mTokenIdent!=null){
 		 Operator nodeVar = new Operator(mTokenIdent);

@@ -430,7 +430,7 @@ public class Parser {
 			mTokenManager.next();
 		} else if (isRecovered) {
 			isRecovered = false;
-			reportError("%s found where %s sought in line no %d", mTokenManager.token(), pToken, mTokenManager.token().getLineNumber());
+			reportError("PARSER ERROR %s found where %s sought in line no %d", mTokenManager.token().getWord(), pToken, mTokenManager.token().getLineNumber());
 		} else {
 			// Do not report the (possibly spurious) error,
 			// but rather attempt to recover by forcing a match.

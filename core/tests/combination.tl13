@@ -1,10 +1,11 @@
 program
     var X as int ;
     var Y as bool ;
+    var Z as int ;
 
 begin
     X := readInt ;
-
+	Z := 2147483649 ;
     if X > 1 then
         X := Y div 2 ;
         X := X - 1 ;

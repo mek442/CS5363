@@ -76,7 +76,7 @@ public class Scanner {
 			if (character == '=') {
 				return new TokenWord(Token.ASGN, lineNumber);
 			} else {
-				reportError("%s does not does not support", "" + character);
+				reportError("SCANNER ERROR %s does not does not support", "" + character);
 
 				return getNextToken();
 			}
@@ -87,7 +87,7 @@ public class Scanner {
 			} else if (character == '=') {
 				return new TokenWord(Token.GT_EQUAL, lineNumber);
 			} else {
-				reportError("%s does not does not support", "" + character);
+				reportError("SCANNER ERROR %s does not does not support", "" + character);
 
 				return getNextToken();
 			}
@@ -98,7 +98,7 @@ public class Scanner {
 			} else if (character == '=') {
 				return new TokenWord(Token.LT_EQUAL, lineNumber);
 			} else {
-				reportError("%s does not does not support", "" + character);
+				reportError("SCANNER ERROR %s does not does not support", "" + character);
 
 				return getNextToken();
 			}
@@ -108,7 +108,7 @@ public class Scanner {
 			if (character == '=')
 				return new TokenWord(Token.NOT_EQUAL, lineNumber);
 			else {
-				reportError("%s does not support", "" + character);
+				reportError("SCANNER ERROR %s does not support", "" + character);
 
 				return getNextToken();
 			}
@@ -118,7 +118,7 @@ public class Scanner {
 				buffer.append(character);
 				readNextCharacter();
 			}
-			System.err.println(buffer.toString());
+			//System.err.println(buffer.toString());
 			return getNextToken();
 		case EOFCH : return new TokenWord(Token.EOF, lineNumber);	
 		case '0':
