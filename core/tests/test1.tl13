@@ -14,7 +14,6 @@ begin
 
   % go until SQRT exceeds the square root of N SQRT * SQRT
   while  P >= true   do 
-   if P then
     SQRT := SQRT + 1 ; 
   end ; 
 
@@ -22,4 +21,4 @@ begin
 
   writeInt false ; 
 
-end 
+end
