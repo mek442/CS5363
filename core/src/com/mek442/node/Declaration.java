@@ -1,14 +1,22 @@
 package com.mek442.node;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.mek442.scanner.TokenWord;
 
-public class Declaration {
+public class Declaration implements Node{
 private TokenWord mTokenVar;
 private TokenWord mTokenIdent;
 private TokenWord mTokenAs;
 private Type mType;
 private TokenWord mTokenSc;
 private Declaration mDeclaration;
+private int mCount;
+Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+
 	
 	public Declaration(TokenWord pTokenVar, TokenWord pTokenID, TokenWord pTokenAs, Type pParseType, TokenWord pTokenSc, Declaration pDeclaration) {
 		mTokenVar = pTokenVar;
@@ -123,5 +131,64 @@ private Declaration mDeclaration;
 		
 	}
 	
+	@Override
+	public TokenWord getTokenValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
+	@Override
+	public Node buildAST() {
+		return this;
+	}
+
+	@Override
+	public boolean hasError() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<Node> getChildNodes() {
+		List<Node> nodes = new ArrayList<Node>();
+		List<Node> nodeType = new ArrayList<Node>();
+		System.out.println("declaration");
+		
+		if(mTokenIdent!=null){
+		 Operator nodeVar = new Operator(mTokenIdent);
+		 nodeType.add(mType.buildAST());
+		 nodeVar.setChilds(nodeType);
+		 nodes.add(nodeVar);
+		}
+		
+		if (mDeclaration!=null) {
+			nodes.add(mDeclaration.buildAST());
+		} 
+		return nodes;// TODO Auto-generated method stub
+	}
+	@Override
+	public int getCount() {
+		
+		return mCount;
+		
+	}
+
+	@Override
+	public void setCount(int pCount) {
+		mCount = pCount;
+		
+	}
+	
+
+	@Override
+	public Map<String, Attribute> getAttributes() {
+		// TODO Auto-generated method stub
+		return mAttributes;
+	}
+
+	@Override
+	public void setAttribute(String key, Attribute pAttribute) {
+		mAttributes.put(key,pAttribute);
+		
+	}
 }

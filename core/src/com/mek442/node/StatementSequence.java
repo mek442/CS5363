@@ -1,13 +1,22 @@
 package com.mek442.node;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.mek442.scanner.Token;
 import com.mek442.scanner.TokenWord;
 
-public class StatementSequence {
+public class StatementSequence implements Node{
 
 	private Statement mStatement;
 	private TokenWord mSc;
 	private StatementSequence mParseStatementSequences;
+	private int mCount;
+	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+	
+	
 
 	public StatementSequence(Statement pStatement, TokenWord pSc, StatementSequence pParseStatementSequences) {
 		mStatement = pStatement;
@@ -75,5 +84,60 @@ public class StatementSequence {
 		
 	}
 	
+	
+	@Override
+	public TokenWord getTokenValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
+	@Override
+	public Node buildAST() {
+		
+		return this;
+	}
+
+	@Override
+	public boolean hasError() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<Node> getChildNodes() {
+		List<Node> nodes = new ArrayList<Node>();
+		if (mStatement!=null) {
+			nodes.add(mStatement.buildAST());
+		} 
+		if (mParseStatementSequences != null) {
+			nodes.add(mParseStatementSequences.buildAST());
+		}
+		return nodes;// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public int getCount() {
+		
+		return mCount;
+	}
+
+	@Override
+	public void setCount(int pCount) {
+		mCount = pCount;
+		
+	}
+
+	
+
+	@Override
+	public Map<String, Attribute> getAttributes() {
+		// TODO Auto-generated method stub
+		return mAttributes;
+	}
+
+	@Override
+	public void setAttribute(String key, Attribute pAttribute) {
+		mAttributes.put(key,pAttribute);
+		
+	}
 }

@@ -6,17 +6,20 @@
 program 
   var N as int ; 
   var SQRT as int ; 
+  var P as bool;
 begin 
-  N := readInt ; 
-  SQRT := 0 ; 
+  N := 2147483649 ; 
+  SQRT := false ; 
+  P := readInt;
 
-  % go until SQRT exceeds the square root of N
-  while SQRT * SQRT <= N do 
+  % go until SQRT exceeds the square root of N SQRT * SQRT
+  while  P >= true   do 
+   if P then
     SQRT := SQRT + 1 ; 
   end ; 
 
-  SQRT := SQRT - 1 ; % subtract one SQRT is <= sqrt(N)
+  SQRT := SQRT - true ; % subtract one SQRT is <= sqrt(N)
 
-  writeInt SQRT ; 
+  writeInt false ; 
 
 end 

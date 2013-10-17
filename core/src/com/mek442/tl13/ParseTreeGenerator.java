@@ -4,26 +4,283 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.Buffer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import com.mek442.node.Attribute;
 import com.mek442.node.Counter;
+import com.mek442.node.Declaration;
+import com.mek442.node.Node;
+import com.mek442.node.NodeUtil;
 import com.mek442.node.Program;
+import com.mek442.node.StatementSequence;
 import com.mek442.parser.Parser;
+import com.mek442.scanner.Token;
+import com.mek442.scanner.TokenWord;
 
 public class ParseTreeGenerator {
-  
+
 	Parser mParser;
-	
+	Map<String, Token> typeMap = new HashMap<String, Token>();
+
 	public ParseTreeGenerator(Parser pParser) {
 		mParser = pParser;
-				
+
 	}
 
 	public String produceParseTree() {
 		Program program = mParser.startParse();
-		String output = "digraph parseTree { \n"  +" ordering=out; \n";
-		output = output + program.getOutPut(Counter.getInstance(), 0) + "\n }";
-		return output;
+		Node buildAST = program.buildAST();
+		StringBuffer buffer = new StringBuffer();
+		String output = "digraph parseTree { \n" + " ordering=out; ";
+		buffer.append(output);
+		Counter instance = Counter.getInstance();
+		instance.getCount();
+
+		treeTraversal(buildAST, null, 0, instance, buffer);
+		buffer.append("\n" + "}");
+		// String output = "digraph parseTree { \n" +" ordering=out; \n";
+		// output = output + program.getOutPut(Counter.getInstance(), 0) +
+		// "\n }";
+		return buffer.toString();
+	}
+
+	public void treeTraversal(Node pNode, Node father, int fCounter, Counter pCounter, StringBuffer pBuffer) {
+		if (pNode == null)
+			return;
+		boolean isError = false;
+		String color = "white";
+		if (pNode.getTokenValue() != null) {
+			TokenWord tokenValue = father.getTokenValue();
+			Token currentToekn = pNode.getTokenValue().getWord();
+
+			if (tokenValue != null && tokenValue.getWord() == Token.IDENT
+					&& (currentToekn == Token.INT || currentToekn == Token.BOOL)) {
+				Attribute attribute = new Attribute();
+				attribute.setName(tokenValue.getIdentifier());
+				attribute.setValue(currentToekn);
+				pNode.setAttribute(attribute.getName(), attribute);
+				// typeMap.put(tokenValue.getIdentifier(), currentToekn);
+				father.setAttribute(attribute.getName(), attribute);
+
+			} else if (Token.getINTOP().contains(currentToekn)) {
+				Attribute attribute = new Attribute();
+				attribute.setName("type");
+				attribute.setValue(Token.INT);
+				pNode.setAttribute(attribute.getName(), attribute);
+				father.setAttribute(attribute.getName(), attribute);
+				if(Token.getArithOP().contains(currentToekn)){
+					color ="#feebe2";
+				}else {
+					color ="#e0f3f8";
+				}
+			}else if(currentToekn== Token.IF || currentToekn == Token.WHILE){
+				Attribute attribute = new Attribute();
+				attribute.setName("type");
+				attribute.setValue(Token.BOOL);
+				pNode.setAttribute(attribute.getName(), attribute);
+				color="#e0e0e0";
+			}else if(currentToekn== Token.THEN){
+				
+			} else if (currentToekn == Token.NUM) {
+				TokenWord word = pNode.getTokenValue();
+				long value = Long.parseLong(word.getIdentifier().trim());
+				Attribute temp = father.getAttributes().get("type");
+				if (temp != null && temp.getValue() != Token.INT) {
+					System.err.println("Type mis match " + Token.NUM);
+					isError = true;
+				} else if (value > 2147483647 || value < 0) {
+					System.err.println("Integer overflow " + Token.NUM);
+					isError = true;
+				} else {
+					Attribute attribute = new Attribute();
+					attribute.setName("type");
+					attribute.setValue(Token.INT);
+					pNode.setAttribute(attribute.getName(), attribute);
+					father.setAttribute(attribute.getName(), attribute);
+				}
+			} else if (currentToekn == Token.IDENT) {
+				Attribute temp = father.getAttributes().get(pNode.getTokenValue().getIdentifier());
+				Attribute temp1 = father.getAttributes().get("type");
+				if (temp != null && temp1 != null && temp.getValue() != temp1.getValue()) {
+					System.err.println("Type mis match " + pNode.getTokenValue().getIdentifier());
+					isError = true;
+				} else if (temp == null) {
+
+				} else {
+					Attribute attribute = new Attribute();
+					attribute.setName("type");
+					if (father.getTokenValue() != null && Token.getINTOP().contains(father.getTokenValue().getWord())) {
+						attribute.setValue(Token.INT);
+					} else
+						attribute.setValue(temp.getValue());
+					pNode.setAttribute(attribute.getName(), attribute);
+					if (temp.getValue() == Token.BOOL) {
+						color = "#f1b6da";
+					} else
+						color = "#fed9a6";
+					// attribute.setName("type");
+					father.setAttribute(attribute.getName(), attribute);
+				}
+			} else if (currentToekn == Token.BOOLLIT) {
+				Attribute temp = father.getAttributes().get("type");
+				if (temp != null && temp.getValue() != Token.BOOL) {
+					System.err.println("Type mis match " + Token.BOOLLIT + " " + pNode.getCount() + " "
+							+ temp.getValue());
+					isError = true;
+				} else {
+					Attribute attribute = new Attribute();
+					attribute.setName("type");
+					attribute.setValue(Token.BOOLLIT);
+					pNode.setAttribute(attribute.getName(), attribute);
+					father.setAttribute(attribute.getName(), attribute);
+					color="#decbe4";
+				}
+			} else if (currentToekn == Token.READINT) {
+				Attribute temp = father.getAttributes().get("type");
+				if (temp != null && temp.getValue() != Token.INT) {
+					System.err.println("Type mis match " + Token.READINT);
+					isError = true;
+				}
+			} else if (currentToekn == Token.WRITEINT) {
+
+				Attribute attribute = new Attribute();
+				attribute.setName("type");
+				attribute.setValue(Token.INT);
+				pNode.setAttribute(attribute.getName(), attribute);
+				father.setAttribute(attribute.getName(), attribute);
+			}
+
+			Token printToken =pNode.getTokenValue().getWord();
+			String label = NodeUtil.Label.replace("#", "" + pNode.getCount());
+			if (isError) {
+				label = label.replace("$", "red");
+			} else {
+				
+				if (printToken == Token.NUM) {
+					color = "#d9ef8b";
+				}else if(printToken == Token.ASGN){
+					color ="#e6f5c9";
+				}else if(printToken == Token.EQUAL){
+					color ="#ffff99";
+				} 
+				label = label.replace("$", color);
+			}
+			label = label.replace("@", getTokenValue(pNode));
+			pBuffer.append(label);
+			pBuffer.append("\n");
+
+			pBuffer.append("n" + father.getCount() + " -> " + "n" + pNode.getCount());
+
+			pBuffer.append("\n");
+		}
+
+		List<Node> childNodes = pNode.getChildNodes();
+		int fatherCount = fCounter;// pCounter.getPrevCount();
+		if (pNode instanceof Program) {
+			String program = NodeUtil.Program;
+			buildASTview(0, pNode.getCount(), pBuffer, program);
+
+		}
+
+		if (pNode instanceof Declaration) {
+			String program = "dec-list";
+			buildASTview(father.getCount(), pNode.getCount(), pBuffer, program);
+
+		}
+
+		if (pNode instanceof StatementSequence) {
+			String program = "state-list";
+			buildASTview(father.getCount(), pNode.getCount(), pBuffer, program);
+
+		}
+
+		// fatherCount =pCounter.getPrevCount();
+		Map<String, Attribute> attributes = new HashMap<String, Attribute>();
+
+		for (Node node : childNodes) {
+			if (pNode != null) {
+				attributes.putAll(pNode.getAttributes());
+				if(pNode.getTokenValue()!=null && pNode.getTokenValue().getWord() == Token.GT_EQUAL){
+					System.err.println("Mostafa");
+				}
+
+				if (node instanceof Declaration || node instanceof StatementSequence) {
+					attributes.remove("type");
+					setAttributes(node, attributes);
+					node.setCount(pCounter.getCount());
+				} else if (node != null && node.getTokenValue() == null) {
+					setAttributes(node, attributes);
+					node.setCount(pNode.getCount());
+				} else if (node != null && node.getTokenValue() != null) {
+					setAttributes(node, attributes);
+					node.setCount(pCounter.getCount());
+				}
+			} else
+				node.setCount(1);
+			try {
+				treeTraversal(node, pNode, fatherCount, pCounter, pBuffer);
+
+				if (node != null)
+					setAttributes(pNode, node.getAttributes());
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+		}
+
+	}
+
+	private void setAttributes(Node node, Map<String, Attribute> pAttributes) {
+		if(node.getTokenValue()!=null &&Token.getINTOP().contains(node.getTokenValue().getWord())){
+			Attribute attribute = new Attribute();
+			attribute.setValue(Token.INT);
+
+			node.setAttribute("type", attribute);
+		}
+		 //  System.err.println("Nahid Mostafa "+node.getTokenValue().getWord());
+		Set<String> keySet = pAttributes.keySet();
+		for (String key : keySet) {
+			Attribute attribute = pAttributes.get(key);
+			if (Token.getINTOP().contains(attribute.getValue())) {
+				 System.err.println(" Mostafa "+node.getTokenValue().getWord());
+				if (key.equalsIgnoreCase("type")) {
+					attribute.setValue(Token.INT);
+
+					node.setAttribute(key, attribute);
+
+				} else
+					node.setAttribute(key, attribute);
+			} else
+				node.setAttribute(key, attribute);
+		}
+
+	}
+
+	private String getTokenValue(Node pNode) {
+		Token word = pNode.getTokenValue().getWord();
+		if (Token.IDENT == word || Token.NUM == word) {
+			return pNode.getTokenValue().getIdentifier();
+		}
+		return pNode.getTokenValue().getWord().getValue();
+	}
+
+	private void buildASTview(int fCounter, int cCounter, StringBuffer pBuffer, String program) {
+
+		pBuffer.append("\n");
+		String label = NodeUtil.Label.replace("#", "" + cCounter);
+		label = label.replace("@", program);
+		label = label.replace("$", "white");
+		pBuffer.append(label);
+		pBuffer.append("\n");
+		if (!program.equalsIgnoreCase("program")) {
+			pBuffer.append("n" + fCounter + " -> " + "n" + cCounter);
+			pBuffer.append("\n");
+		}
 	}
 
 	public void writToFile(String pContent, String fileName) {
@@ -62,7 +319,7 @@ public class ParseTreeGenerator {
 	}
 
 	public static void main(String[] args) {
-		
+
 	}
 
 }

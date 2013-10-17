@@ -1,13 +1,21 @@
 package com.mek442.node;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.mek442.scanner.TokenWord;
 
-public class Program {
+public class Program implements Node{
 	Declaration declarations = null;
 	StatementSequence statementSequence = null;
 	TokenWord program;
 	TokenWord begin;
 	TokenWord end;
+	private int mCount;
+	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+	
 
 	public Program(TokenWord pTokenP, Declaration pDeclaration, TokenWord pTokenB,
 			StatementSequence pParseStatementSequences, TokenWord pTokenE) {
@@ -92,4 +100,60 @@ public class Program {
 		
 	}
 	
+	
+	@Override
+	public TokenWord getTokenValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Node buildAST() {
+		
+		return this;
+	}
+
+	@Override
+	public boolean hasError() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<Node> getChildNodes() {
+		List<Node> nodes = new ArrayList<Node>();
+		if (declarations != null) {
+			nodes.add(declarations.buildAST());
+		} 
+		if (statementSequence != null) {
+			nodes.add(statementSequence.buildAST());
+		}
+		return nodes;// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public int getCount() {
+		
+		return mCount;
+	}
+
+	@Override
+	public void setCount(int pCount) {
+		mCount = pCount;
+		
+	}
+	
+	
+
+	@Override
+	public Map<String, Attribute> getAttributes() {
+		// TODO Auto-generated method stub
+		return mAttributes;
+	}
+
+	@Override
+	public void setAttribute(String key, Attribute pAttribute) {
+		mAttributes.put(key,pAttribute);
+		
+	}
 }

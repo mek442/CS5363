@@ -2,7 +2,7 @@ package com.mek442.node;
 
 public class NodeUtil {
 	
-	public static String Label = "n# [label=\"@\",fillcolor=\"/x11/white\",shape=box]";
+	public static String Label = "n# [label=\"@\",  color=\"&\" fillcolor=\"$\", style=filled shape=box]";
 	public static String Factor = "factor";
 	public static String Program = "program";
 	public static String Declaration = "declaration";

@@ -45,6 +45,16 @@ public enum Token {
 		Set<Token> set = new HashSet<Token>(Arrays.asList(EQUAL, NOT_EQUAL, LT, LT_EQUAL, GT, GT_EQUAL));
 		return set;
 	}
+	
+	public static Set<Token> getINTOP() {
+		Set<Token> set = new HashSet<Token>(Arrays.asList(MUL,MOD,DIV,PLUS,MINUS, LT, LT_EQUAL, GT, GT_EQUAL));
+		return set;
+	}
+	
+	public static Set<Token> getArithOP() {
+		Set<Token> set = new HashSet<Token>(Arrays.asList(MUL,MOD,DIV,PLUS,MINUS));
+		return set;
+	}
 
 	public static Set<Token> getStatement() {
 		Set<Token> set = new HashSet<Token>(Arrays.asList(IDENT, IF, WHILE, WRITEINT));

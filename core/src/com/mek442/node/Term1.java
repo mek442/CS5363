@@ -1,11 +1,19 @@
 package com.mek442.node;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.mek442.scanner.TokenWord;
 
-public class Term1 {
+public class Term1 implements Node {
 
 	private TokenWord mToken;
 	private Factor mParseFactor;
+	private int mCount;
+	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+	
 	public Term1(TokenWord pToken, Factor pParseFactor) {
 		mToken = pToken;
 		mParseFactor = pParseFactor;
@@ -62,4 +70,65 @@ public class Term1 {
 		
 	}
 
+	@Override
+	public TokenWord getTokenValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Node buildAST() {
+		
+		Operator node =null;
+		if(mToken!=null){
+			
+			node = new Operator(mToken);
+			node.setChilds(getChildNodes());
+		}
+		
+		
+		return node;
+	}
+
+	@Override
+	public boolean hasError() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<Node> getChildNodes() {
+		List<Node> nodes = new ArrayList<Node>();
+		
+		if(mParseFactor!=null){
+			nodes.add(mParseFactor.buildAST());
+		}
+		
+		return nodes;
+	}
+
+	@Override
+	public int getCount() {
+		
+		return mCount;
+	}
+
+	@Override
+	public void setCount(int pCount) {
+		mCount = pCount;
+		
+	}
+	
+
+	@Override
+	public Map<String, Attribute> getAttributes() {
+		// TODO Auto-generated method stub
+		return mAttributes;
+	}
+
+	@Override
+	public void setAttribute(String key, Attribute pAttribute) {
+		mAttributes.put(key,pAttribute);
+		
+	}
 }
