@@ -1,10 +1,24 @@
 program
-   var X as int ; 
-   var Y as int ; 
-begin 
-   X := readInt ; 
-   Y := readInt ; 
+    var X as int ;
+    var Y as bool ;
 
-   writeInt  ( X - Y );
-  
-end 
+begin
+    X := readInt ;
+                
+    if X > 1 then
+        X := X div 2 ;
+        X := X - 1 ;
+    end ;
+
+                Y := true ;
+                while Y do
+        if X <= 100 then
+            X := X * ( 1 + X ) ;
+        else
+            Y := false ;
+        end ;
+    end ;
+
+    writeInt X ;
+
+end

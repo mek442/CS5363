@@ -1,9 +1,10 @@
-package com.mek442.tl13;
+package edu.utsa.tl13;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import com.mek442.parser.Parser;
+import com.mek442.tl13.ParseTreeGenerator;
 
 public class Compiler {
 	
