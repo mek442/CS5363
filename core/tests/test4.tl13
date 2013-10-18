@@ -1,5 +1,5 @@
 program
-   
+    var X as int ;
     var Y as bool ;
 
 begin
