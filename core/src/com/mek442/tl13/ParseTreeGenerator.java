@@ -175,10 +175,22 @@ public class ParseTreeGenerator {
 							Token typeToken = tempNode.getTokenValue().getWord();
 							if (typeToken == Token.BOOL) {
 								color = "/pastel13/2";
-							} else
+							} else if(typeToken == Token.INT){
 								color = "/pastel13/3";
+							}else{ color = "/pastel13/1";
+							 pNode.setError(true);
+							 isError = true;
+							 System.err.println("ERROR " +"declaration of ID " + pNode.getTokenValue().getIdentifier() + " expected");
+							}
 						}
 					}
+					if(pNode.getChildNodes().size() < 1){
+						color = "/pastel13/1";
+						 pNode.setError(true);
+						 isError = true;
+						 System.err.println("ERROR " +"declaration of ID " + pNode.getTokenValue().getIdentifier() + " expected");
+					}
+					
 				} else {
 					Attribute attribute = new Attribute();
 					attribute.setName("type");
