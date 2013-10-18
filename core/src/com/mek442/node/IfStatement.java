@@ -17,7 +17,10 @@ public class IfStatement implements Node {
 	private TokenWord mEndToken;
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
-	
+	private boolean mError;
+	private String mColor;
+	private Node mNode =null;
+	private List<Node> mNodes = null;
 
 	public IfStatement(TokenWord pIfT, Expression pParseExpression, TokenWord pThenT,
 			StatementSequence pParseStatementSequences, ElseClause pParseElseExpression, TokenWord pEndT) {
@@ -122,40 +125,40 @@ public class IfStatement implements Node {
 
 	@Override
 	public Node buildAST() {
+		if (mNode == null) {
+			Operator node = new Operator(mIfToken);
+			node.setChilds(getChildNodes());
+			mNode = node;
+		}
 
-		Operator node = new Operator(mIfToken);
-		node.setChilds(getChildNodes());
-
-		return node;
+		return mNode;
 	}
 
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+	
 	@Override
 	public List<Node> getChildNodes() {
-		List<Node> nodes = new ArrayList<Node>();
-		List<Node> nodesthen = new ArrayList<Node>();
-		if (mParseExpression != null) {
-			nodes.add(mParseExpression.buildAST());
+
+		if (mNodes == null) {
+			List<Node> nodes = new ArrayList<Node>();
+			List<Node> nodesthen = new ArrayList<Node>();
+			if (mParseExpression != null) {
+				nodes.add(mParseExpression.buildAST());
+			}
+			Operator node = new Operator(mThenToken);
+
+			if (mParseStatementSequences != null) {
+				nodesthen.add(mParseStatementSequences.buildAST());
+			}
+
+			if (mParseStatementSequences != null) {
+				nodesthen.add(mParseElseExpression.buildAST());
+			}
+			node.setChilds(nodesthen);
+
+			nodes.add(node);
+			mNodes = nodes;
 		}
-		Operator node = new Operator(mThenToken);
-		
-		
-		if (mParseStatementSequences != null) {
-			nodesthen.add(mParseStatementSequences.buildAST());
-		}
-		
-		if (mParseStatementSequences != null) {
-			nodesthen.add(mParseElseExpression.buildAST());
-		}
-         node.setChilds(nodesthen);
-		
-		nodes.add(node);
-		return nodes;
+		return mNodes;
 	}
 	
 	@Override
@@ -182,4 +185,28 @@ public class IfStatement implements Node {
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }

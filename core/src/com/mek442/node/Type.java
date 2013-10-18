@@ -11,6 +11,8 @@ public class Type implements Node {
 	private TokenWord type;
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+	private boolean mError;
+	private String mColor;
 
 	public Type(TokenWord pType) {
 		this.type = pType;
@@ -58,12 +60,7 @@ public class Type implements Node {
 		return this;
 	}
 
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+	
 	@Override
 	public List<Node> getChildNodes() {
 		List<Node> nodes = new ArrayList<Node>();
@@ -93,4 +90,28 @@ public class Type implements Node {
 		mAttributes.put(key,pAttribute);
 
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }

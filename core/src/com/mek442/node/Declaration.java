@@ -16,6 +16,9 @@ private TokenWord mTokenSc;
 private Declaration mDeclaration;
 private int mCount;
 Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+private boolean mError;
+private String mColor;
+private List<Node> mNodes = null;
 
 	
 	public Declaration(TokenWord pTokenVar, TokenWord pTokenID, TokenWord pTokenAs, Type pParseType, TokenWord pTokenSc, Declaration pDeclaration) {
@@ -142,28 +145,26 @@ Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
 		return this;
 	}
 
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+	
 	@Override
 	public List<Node> getChildNodes() {
-		List<Node> nodes = new ArrayList<Node>();
-		List<Node> nodeType = new ArrayList<Node>();
-		
-		if(mTokenIdent!=null){
-		 Operator nodeVar = new Operator(mTokenIdent);
-		 nodeType.add(mType.buildAST());
-		 nodeVar.setChilds(nodeType);
-		 nodes.add(nodeVar);
+		if (mNodes == null) {
+			List<Node> nodes = new ArrayList<Node>();
+			List<Node> nodeType = new ArrayList<Node>();
+
+			if (mTokenIdent != null) {
+				Operator nodeVar = new Operator(mTokenIdent);
+				nodeType.add(mType.buildAST());
+				nodeVar.setChilds(nodeType);
+				nodes.add(nodeVar);
+			}
+
+			if (mDeclaration != null) {
+				nodes.add(mDeclaration.buildAST());
+			}
+			mNodes = nodes;
 		}
-		
-		if (mDeclaration!=null) {
-			nodes.add(mDeclaration.buildAST());
-		} 
-		return nodes;// TODO Auto-generated method stub
+		return mNodes;// TODO Auto-generated method stub
 	}
 	@Override
 	public int getCount() {
@@ -190,4 +191,28 @@ Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }

@@ -14,6 +14,9 @@ public class Assignment1 implements Node {
 	private Expression mParseExpression;
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+	private boolean mError;
+	private String mColor;
+	private List<Node> mNodes = null;
 
 	public Assignment1(TokenWord pWord, Expression pParseExpression) {
 		mTokenWord = pWord;
@@ -69,25 +72,24 @@ public class Assignment1 implements Node {
 	@Override
 	public TokenWord getTokenValue() {
 		// TODO Auto-generated method stub
-		return null;
+		if(mTokenWord.getWord() == Token.READINT){
+			return mTokenWord;
+		}else return null;
 	}
 	
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+	
 	@Override
 	public List<Node> getChildNodes() {
-		List<Node> nodes = new ArrayList<Node>();
-		if (mParseExpression != null) {
-			nodes.add(mParseExpression.buildAST());
-		}else if (mTokenWord != null) {
-			nodes.add(new Operator(mTokenWord));
+		if (mNodes == null) {
+			List<Node> nodes = new ArrayList<Node>();
+			if (mParseExpression != null) {
+				nodes.add(mParseExpression.buildAST());
+			} else if (mTokenWord != null && mTokenWord.getWord() != Token.READINT) {
+				nodes.add(new Operator(mTokenWord));
+			}
+			mNodes = nodes;
 		}
-		
-		return nodes;
+		return mNodes;
 	}
 
 	@Override
@@ -114,4 +116,28 @@ public class Assignment1 implements Node {
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }

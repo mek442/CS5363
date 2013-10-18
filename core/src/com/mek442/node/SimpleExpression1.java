@@ -14,6 +14,10 @@ public class SimpleExpression1 implements Node{
 	private Term mParseTerm;
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+	private boolean mError;
+	private String mColor;
+	private Node mNode =null;
+	private List<Node> mNodes = null;
 
 	public SimpleExpression1(TokenWord pWord, Term pParseTerm) {
 		mToken = pWord;
@@ -74,15 +78,15 @@ public class SimpleExpression1 implements Node{
 	
 	@Override
 	public Node buildAST() {
-		Operator node =null;
-		if(mToken!=null){
-			
-			node = new Operator(mToken);
+
+		if (mToken != null && mNode == null) {
+
+			Operator node = new Operator(mToken);
 			node.setChilds(getChildNodes());
+			mNode = node;
 		}
-		
-		
-		return node;
+
+		return mNode;
 	}
 	
 	@Override
@@ -91,19 +95,18 @@ public class SimpleExpression1 implements Node{
 		return null;
 	}
 	
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 
 	@Override
 	public List<Node> getChildNodes() {
-		List<Node> nodes = new ArrayList<Node>();
-		if (mParseTerm != null) {
-			nodes.add(mParseTerm.buildAST());
-		} 
-		return nodes;
+		if (mNodes == null) {
+			List<Node> nodes = new ArrayList<Node>();
+			if (mParseTerm != null) {
+				nodes.add(mParseTerm.buildAST());
+			}
+			mNodes = nodes;
+		}
+		return mNodes;
 	}
 	
 	@Override
@@ -130,4 +133,28 @@ public class SimpleExpression1 implements Node{
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }

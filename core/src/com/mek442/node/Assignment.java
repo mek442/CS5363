@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.mek442.scanner.Token;
 import com.mek442.scanner.TokenWord;
 
 public class Assignment implements Node {
@@ -13,7 +14,12 @@ public class Assignment implements Node {
 	private TokenWord mAsgn;
 	private Assignment1 mParseAssignment1;
 	int mCount =0;
+	boolean isError = false;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+	private boolean mError;
+	private String mColor;
+	private Node mNode =null;
+	private List<Node> mNodes = null;
 	
 	public Assignment(TokenWord pIdent, TokenWord pAsgn, Assignment1 pParseAssignment1) {
 		mIdent = pIdent;
@@ -84,29 +90,30 @@ public class Assignment implements Node {
 
 	@Override
 	public Node buildAST() {
-
+        if(mNode==null){
 		Operator node = new Operator(mAsgn);
 		node.setChilds(getChildNodes());
+		mNode = node;
+	   }
 
-		return node;
+		return mNode;
 	}
 
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 
 	@Override
 	public List<Node> getChildNodes() {
+		if(mNodes==null){
 		List<Node> nodes = new ArrayList<Node>();
 		Operator iden = new Operator(mIdent);
 		nodes.add(iden);
 		if (mParseAssignment1 != null) {
-			nodes.add(mParseAssignment1.buildAST());
+			Node buildAST = mParseAssignment1.buildAST();
+			 nodes.add(buildAST);
 		}
-
-		return nodes;
+		mNodes = nodes;
+		}
+		return mNodes;
 	}
 
 	@Override
@@ -133,4 +140,28 @@ public class Assignment implements Node {
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }

@@ -41,16 +41,77 @@ public class ParseTreeGenerator {
 		instance.getCount();
 
 		treeTraversal(buildAST, null, 0, instance, buffer);
+		buffer = new StringBuffer();
+		buffer.append(output);
+		printTree(buildAST, null, buffer);
 		buffer.append("\n" + "}");
-		// String output = "digraph parseTree { \n" +" ordering=out; \n";
-		// output = output + program.getOutPut(Counter.getInstance(), 0) +
-		// "\n }";
 		return buffer.toString();
+	}
+
+	private void printTree(Node pNode, Node father, StringBuffer pBuffer) {
+		if (pNode == null)
+			return;
+		
+		if (pNode.getTokenValue() != null) {
+			String label = NodeUtil.Label.replace("#", "" + pNode.getCount());
+
+			if (pNode.hasError()) {
+				label = label.replace("$", "/pastel13/1");
+
+			} else {
+
+				label = label.replace("$", pNode.getColor());
+
+			}
+			label = label.replace("@", getTokenValue(pNode));
+
+			pBuffer.append(label);
+			pBuffer.append("\n");
+
+			pBuffer.append("n" + father.getCount() + " -> " + "n" + pNode.getCount());
+
+			pBuffer.append("\n");
+
+		}
+		
+		List<Node> childrenNodes = pNode.getChildNodes();
+
+		if (pNode instanceof Program) {
+			String program = NodeUtil.Program;
+			String color = "/x11/lightgrey";
+			if (pNode.hasError()) {
+				color = "/pastel13/1";
+			}
+			buildASTview(0, pNode.getCount(), pBuffer, program, color);
+
+		}
+
+		if (pNode instanceof Declaration) {
+			String program = "decl";
+			if (childrenNodes.size() > 0)
+				buildASTview(father.getCount(), pNode.getCount(), pBuffer, program, "white");
+
+		}
+
+		if (pNode instanceof StatementSequence) {
+			String program = "stmt";
+			if (childrenNodes.size() > 0)
+				buildASTview(father.getCount(), pNode.getCount(), pBuffer, program, "white");
+
+		}
+
+		for (Node node : childrenNodes) {
+			if(node!=null && pNode.getTokenValue()!=null && pNode.getTokenValue().getWord()==Token.ASGN && node.getTokenValue()!=null && node.getTokenValue().getWord()==Token.READINT){
+				
+			} else 	printTree(node, pNode, pBuffer);
+		}
+
 	}
 
 	public void treeTraversal(Node pNode, Node father, int fCounter, Counter pCounter, StringBuffer pBuffer) {
 		if (pNode == null)
 			return;
+
 		boolean isError = false;
 		String color = "/x11/lightgrey";
 		if (pNode.getTokenValue() != null) {
@@ -165,6 +226,9 @@ public class ParseTreeGenerator {
 			String label = NodeUtil.Label.replace("#", "" + pNode.getCount());
 			if (isError) {
 				label = label.replace("$", "/pastel13/1");
+				father.setError(isError);
+				father.setColor("/pastel13/1");
+				pNode.setColor(color);
 			} else {
 
 				if (printToken == Token.NUM) {
@@ -173,14 +237,17 @@ public class ParseTreeGenerator {
 					color = "/pastel13/2";
 				}
 				label = label.replace("$", color);
+				pNode.setColor(color);
 			}
 			label = label.replace("@", getTokenValue(pNode));
-			pBuffer.append(label);
-			pBuffer.append("\n");
+			if (printToken != Token.READINT) {
+				pBuffer.append(label);
+				pBuffer.append("\n");
 
-			pBuffer.append("n" + father.getCount() + " -> " + "n" + pNode.getCount());
+				pBuffer.append("n" + father.getCount() + " -> " + "n" + pNode.getCount());
 
-			pBuffer.append("\n");
+				pBuffer.append("\n");
+			}
 		}
 
 		List<Node> childNodes = pNode.getChildNodes();
@@ -229,15 +296,24 @@ public class ParseTreeGenerator {
 				node.setCount(1);
 			try {
 				treeTraversal(node, pNode, fatherCount, pCounter, pBuffer);
-
 				if (node != null)
-					setAttributes(pNode, node.getAttributes());
+					setAttributes(pNode, node);
 
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 
 		}
+
+	}
+
+	private void setAttributes(Node node, Node child) {
+		Map<String, Attribute> pAttributes = child.getAttributes();
+		if (child.hasError()) {
+			node.setError(true);
+		}
+
+		setAttributes(node, pAttributes);
 
 	}
 
@@ -270,6 +346,15 @@ public class ParseTreeGenerator {
 		Token word = pNode.getTokenValue().getWord();
 		if (Token.IDENT == word || Token.NUM == word || Token.BOOLLIT == word) {
 			return pNode.getTokenValue().getIdentifier();
+		}
+
+		if (Token.ASGN == word) {
+			List<Node> childNodes = pNode.getChildNodes();
+			for (Node node : childNodes) {
+				if (node.getTokenValue() != null && node.getTokenValue().getWord() == Token.READINT) {
+					return pNode.getTokenValue().getWord().getValue() + " " + node.getTokenValue().getWord().getValue();
+				}
+			}
 		}
 		return pNode.getTokenValue().getWord().getValue();
 	}

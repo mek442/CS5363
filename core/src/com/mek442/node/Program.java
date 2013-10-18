@@ -15,7 +15,9 @@ public class Program implements Node{
 	TokenWord end;
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
-	
+	private boolean mError;
+	private String mColor;
+	private List<Node> mNodes = null;
 
 	public Program(TokenWord pTokenP, Declaration pDeclaration, TokenWord pTokenB,
 			StatementSequence pParseStatementSequences, TokenWord pTokenE) {
@@ -113,22 +115,21 @@ public class Program implements Node{
 		return this;
 	}
 
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Override
 	public List<Node> getChildNodes() {
-		List<Node> nodes = new ArrayList<Node>();
-		if (declarations != null) {
-			nodes.add(declarations.buildAST());
-		} 
-		if (statementSequence != null) {
-			nodes.add(statementSequence.buildAST());
+
+		if (mNodes == null) {
+			List<Node> nodes = new ArrayList<Node>();
+			if (declarations != null) {
+				nodes.add(declarations.buildAST());
+			}
+			if (statementSequence != null) {
+				nodes.add(statementSequence.buildAST());
+			}
+			mNodes = nodes;
 		}
-		return nodes;// TODO Auto-generated method stub
+		return mNodes;// TODO Auto-generated method stub
 	}
 	
 	@Override
@@ -156,4 +157,28 @@ public class Program implements Node{
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }

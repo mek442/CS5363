@@ -13,6 +13,8 @@ public class Operator implements Node{
 	List<Node> mChilds = new ArrayList<Node>();
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+	private String mColor;
+	private boolean mError;
 	
 	 public Operator(TokenWord pTokenWord) {
 		// TODO Auto-generated constructor stub
@@ -31,11 +33,6 @@ public class Operator implements Node{
 		return this;
 	}
 
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Override
 	public List<Node> getChildNodes() {
@@ -70,5 +67,28 @@ public class Operator implements Node{
 	public void setAttribute(String key, Attribute pAttribute) {
 		mAttributes.put(key,pAttribute);
 		
+	}
+
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
 	}
 }

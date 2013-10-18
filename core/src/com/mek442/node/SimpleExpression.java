@@ -13,7 +13,9 @@ public class SimpleExpression implements Node {
 	private SimpleExpression1 mParseSimpleExpression1;
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
-
+	private boolean mError;
+	private String mColor;
+	private List<Node> mNodes = null;
 	public SimpleExpression(Term pParseTerm, SimpleExpression1 pParseSimpleExpression1) {
 		mParseTerm = pParseTerm;
 		mParseSimpleExpression1 = pParseSimpleExpression1;
@@ -65,31 +67,33 @@ public class SimpleExpression implements Node {
 		return this;
 	}
 
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 
 	@Override
 	public List<Node> getChildNodes() {
-		List<Node> nodes = new ArrayList<Node>();
-		List<Node> nodeOP = new ArrayList<Node>();
-		if (mParseTerm != null) {
-			nodes.add(mParseTerm.buildAST());
-		}
-		if (mParseSimpleExpression1 != null) {
-			Operator buildAST = (Operator) mParseSimpleExpression1.buildAST();
-			List<Node> childNodes = mParseSimpleExpression1.getChildNodes();
-			nodes.addAll(childNodes);
-			if (buildAST != null) {
-				buildAST.setChilds(nodes);
-				nodeOP.add(buildAST);
-			} else
-				return nodes;
+		
+		if (mNodes == null) {
+			List<Node> nodes = new ArrayList<Node>();
+			List<Node> nodeOP = new ArrayList<Node>();
+			if (mParseTerm != null) {
+				nodes.add(mParseTerm.buildAST());
+			}
+			if (mParseSimpleExpression1 != null) {
+				Operator buildAST = (Operator) mParseSimpleExpression1.buildAST();
+				List<Node> childNodes = mParseSimpleExpression1.getChildNodes();
+				nodes.addAll(childNodes);
+				if (buildAST != null) {
+					buildAST.setChilds(nodes);
+					nodeOP.add(buildAST);
+				} else {
+					mNodes = nodes;
+					return mNodes;
+				}
+			}
+			mNodes = nodeOP;
 		}
 
-		return nodeOP;
+		return mNodes;
 	}
 
 	@Override
@@ -116,5 +120,29 @@ public class SimpleExpression implements Node {
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 
 }

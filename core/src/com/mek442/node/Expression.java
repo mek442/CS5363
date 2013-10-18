@@ -13,6 +13,9 @@ public class Expression implements Node{
 	private Expression1 mExpression1;
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+	private boolean mError;
+	private String mColor;
+	private List<Node> mNodes = null;
 	
 
 	public Expression(SimpleExpression pParseSimpleExpression, Expression1 pExpression1) {
@@ -67,32 +70,32 @@ public class Expression implements Node{
 		return this;
 	}
 
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 
 	@Override
 	public List<Node> getChildNodes() {
-		List<Node> nodes = new ArrayList<Node>();
-		List<Node> nodeOP = new ArrayList<Node>();
-		if (mParseSimpleExpression!=null) {
-			nodes.add(mParseSimpleExpression.buildAST());
-		} 
-		if (mExpression1 != null) {
-			Operator buildAST = (Operator)mExpression1.buildAST();
-			List<Node> childNodes = mExpression1.getChildNodes();
-			nodes.addAll(childNodes);
-			if(buildAST!=null){
-			buildAST.setChilds(nodes);
-			nodeOP.add(buildAST);
-			}else{
-				return nodes;
+
+		if (mNodes == null) {
+
+			List<Node> nodes = new ArrayList<Node>();
+			List<Node> nodeOP = new ArrayList<Node>();
+			if (mParseSimpleExpression != null) {
+				nodes.add(mParseSimpleExpression.buildAST());
 			}
+			if (mExpression1 != null) {
+				Operator buildAST = (Operator) mExpression1.buildAST();
+				List<Node> childNodes = mExpression1.getChildNodes();
+				nodes.addAll(childNodes);
+				if (buildAST != null) {
+					buildAST.setChilds(nodes);
+					nodeOP.add(buildAST);
+				} else {
+					return nodes;
+				}
+			}
+			mNodes = nodeOP;
 		}
-	
-		return nodeOP;// TODO Auto-generated method stub
+		return mNodes;// TODO Auto-generated method stub
 	}
 	
 	@Override
@@ -119,4 +122,28 @@ public class Expression implements Node{
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }

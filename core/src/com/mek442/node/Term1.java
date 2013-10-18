@@ -13,6 +13,11 @@ public class Term1 implements Node {
 	private Factor mParseFactor;
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
+	private boolean mError;
+	private String mColor;
+	
+	private Node mNode =null;
+	private List<Node> mNodes = null;
 	
 	public Term1(TokenWord pToken, Factor pParseFactor) {
 		mToken = pToken;
@@ -79,32 +84,32 @@ public class Term1 implements Node {
 	@Override
 	public Node buildAST() {
 		
-		Operator node =null;
-		if(mToken!=null){
+	
+		if(mToken!=null && mNode==null){
 			
-			node = new Operator(mToken);
+			Operator node = new Operator(mToken);
 			node.setChilds(getChildNodes());
+			mNode = node;
 		}
 		
 		
-		return node;
+		return mNode;
 	}
 
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 
 	@Override
 	public List<Node> getChildNodes() {
-		List<Node> nodes = new ArrayList<Node>();
-		
-		if(mParseFactor!=null){
-			nodes.add(mParseFactor.buildAST());
+
+		if (mNodes == null) {
+			List<Node> nodes = new ArrayList<Node>();
+
+			if (mParseFactor != null) {
+				nodes.add(mParseFactor.buildAST());
+			}
+			mNodes = nodes;
 		}
-		
-		return nodes;
+		return mNodes;
 	}
 
 	@Override
@@ -131,4 +136,28 @@ public class Term1 implements Node {
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }

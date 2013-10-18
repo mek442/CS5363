@@ -12,7 +12,10 @@ public interface Node {
 	public TokenWord getTokenValue();
 	public List<Node> getChildNodes();
 	public Node buildAST();
+	public String getColor();
+	public void setColor(String pColor);
 	public boolean hasError();
+	public void setError(boolean pError);
 	public int getCount();
 	public void setCount(int count);
 	public Map<String, Attribute> getAttributes();

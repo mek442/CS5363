@@ -13,7 +13,9 @@ public class Term implements Node {
 	private Term1 mParseTerm1;
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
-	
+	private boolean mError;
+	private String mColor;
+	private List<Node> mNodes = null;
 
 	public Term(Factor pParseFactor, Term1 pParseTerm1) {
 		mParseFactor = pParseFactor;
@@ -64,33 +66,33 @@ public class Term implements Node {
 		return this;
 	}
 
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Override
 	public List<Node> getChildNodes() {
-		List<Node> nodes = new ArrayList<Node>();
-		List<Node> nodeOP = new ArrayList<Node>();
-		if (mParseFactor != null) {
+		if (mNodes == null) {
+			List<Node> nodes = new ArrayList<Node>();
+			List<Node> nodeOP = new ArrayList<Node>();
+			if (mParseFactor != null) {
 
-			nodes.add(mParseFactor.buildAST());
+				nodes.add(mParseFactor.buildAST());
+			}
+
+			if (mParseTerm1 != null) {
+				Operator buildAST = (Operator) mParseTerm1.buildAST();
+				List<Node> childNodes = mParseTerm1.getChildNodes();
+				nodes.addAll(childNodes);
+				if (buildAST != null) {
+					buildAST.setChilds(nodes);
+					nodeOP.add(buildAST);
+				} else {
+					mNodes = nodes;
+					return mNodes;
+				}
+			}
+			mNodes = nodeOP;
 		}
 
-		if (mParseTerm1 != null) {
-			Operator buildAST = (Operator) mParseTerm1.buildAST();
-			List<Node> childNodes = mParseTerm1.getChildNodes();
-			nodes.addAll(childNodes);
-			if (buildAST != null) {
-				buildAST.setChilds(nodes);
-				nodeOP.add(buildAST);
-			} else
-				return nodes;
-		}
-
-		return nodeOP;
+		return mNodes;
 	}
 
 	@Override
@@ -117,4 +119,28 @@ public class Term implements Node {
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }

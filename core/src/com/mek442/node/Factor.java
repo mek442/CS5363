@@ -15,7 +15,9 @@ public class Factor implements Node {
 	private TokenWord mTokenEnd;
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
-	
+	private boolean mError;
+	private String mColor;
+	private List<Node> mNodes = null;
 
 	public Factor(TokenWord pToken, Expression pParseExpression, TokenWord pToken2) {
 		mTokenStart = pToken;
@@ -97,20 +99,21 @@ public class Factor implements Node {
 		return this;
 	}
 
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 
 	@Override
 	public List<Node> getChildNodes() {
+		
+		if(mNodes==null){
 		List<Node> nodes = new ArrayList<Node>();
 		if (mParseExpression != null) {
 			nodes.add(new Operator(mTokenStart));
 			nodes.add(mParseExpression.buildAST());
 			nodes.add(new Operator(mTokenEnd));
 		} 
-		return nodes;
+		 mNodes = nodes;
+		}
+		return mNodes;
 	}
 
 	@Override
@@ -137,4 +140,28 @@ public class Factor implements Node {
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }

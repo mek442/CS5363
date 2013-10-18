@@ -15,7 +15,9 @@ public class Statement implements Node {
 	private WriteInt mParseWriteExpression;
 	private int mCount;
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
-
+	private boolean mError;
+	private String mColor;
+	private List<Node> mNodes = null;
 	public Statement(Assignment pParseAssignment, IfStatement pParseIfStatement, WhileStatement pParseWhileStatement,
 			WriteInt pParseWriteExpression) {
 				mParseAssignment = pParseAssignment;
@@ -86,29 +88,25 @@ public class Statement implements Node {
 		return null;
 	}
 	
-	@Override
-	public boolean hasError() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+	
 	@Override
 	public List<Node> getChildNodes() {
-		List<Node> nodes = new ArrayList<Node>();
-		if (mParseAssignment != null) {
-			nodes.add(mParseAssignment.buildAST());
-		}else if (mParseIfStatement != null) {
-			nodes.add(mParseIfStatement.buildAST());
-		}else if (mParseWhileStatement != null) {
-			nodes.add(mParseWhileStatement.buildAST());
+		if (mNodes == null) {
+			List<Node> nodes = new ArrayList<Node>();
+			if (mParseAssignment != null) {
+				nodes.add(mParseAssignment.buildAST());
+			} else if (mParseIfStatement != null) {
+				nodes.add(mParseIfStatement.buildAST());
+			} else if (mParseWhileStatement != null) {
+				nodes.add(mParseWhileStatement.buildAST());
+			} else if (mParseWriteExpression != null) {
+				nodes.add(mParseWriteExpression.buildAST());
+			}
+			mNodes = nodes;
 		}
-		else if (mParseWriteExpression != null) {
-			nodes.add(mParseWriteExpression.buildAST());
-		}
-		
-		return nodes;
+		return mNodes;
 	}
-	
+
 	@Override
 	public int getCount() {
 		
@@ -133,4 +131,28 @@ public class Statement implements Node {
 		mAttributes.put(key,pAttribute);
 		
 	}
+	
+	@Override
+	public String getColor() {
+		return mColor;
+	}
+
+	@Override
+	public void setColor(String pColor) {
+		mColor = pColor;
+		
+	}
+
+	@Override
+	public void setError(boolean pError) {
+		mError = pError;
+		
+		
+	}
+	
+	@Override
+	public boolean hasError() {
+		return mError;
+	}
+
 }
