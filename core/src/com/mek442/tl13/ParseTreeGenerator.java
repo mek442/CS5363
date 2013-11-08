@@ -84,7 +84,10 @@ public class ParseTreeGenerator {
 		StringBuffer blockBuffer = new StringBuffer();
 		blockBuffer.append("digraph graphviz { " + "\n" + " node [shape = none]; " + "\n" + "  edge [tailport = s]; "
 				+ "\n" + " entry  " + "\n" + "subgraph cluster { " + "\n" + " color=\"/x11/white\" " + "\n");
-
+		
+		Block block2 = mBlockMap.get("B"+(blockCounter.getCount()-1));
+		block2.setBlock(block2.getBlock().concat("\n"+ "exit"));
+		
 		traverseBlock(mBlockMap.get("B0"), blockBuffer);
 		blockBuffer.append("}");
 		blockBuffer.append("entry -> n0" + "\n");

@@ -16,4 +16,5 @@ begin
    end ; 
    else  I := I + 3 ;
    end ;
+   I := I mod 3 ;
 end 
