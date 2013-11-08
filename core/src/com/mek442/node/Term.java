@@ -16,6 +16,7 @@ public class Term implements Node {
 	private boolean mError;
 	private String mColor;
 	private List<Node> mNodes = null;
+	private Node mFather;
 
 	public Term(Factor pParseFactor, Term1 pParseTerm1) {
 		mParseFactor = pParseFactor;
@@ -62,7 +63,8 @@ public class Term implements Node {
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node father) {
+		mFather = father;
 		return this;
 	}
 
@@ -74,11 +76,11 @@ public class Term implements Node {
 			List<Node> nodeOP = new ArrayList<Node>();
 			if (mParseFactor != null) {
 
-				nodes.add(mParseFactor.buildAST());
+				nodes.add(mParseFactor.buildAST(this));
 			}
 
 			if (mParseTerm1 != null) {
-				Operator buildAST = (Operator) mParseTerm1.buildAST();
+				Operator buildAST = (Operator) mParseTerm1.buildAST(this);
 				List<Node> childNodes = mParseTerm1.getChildNodes();
 				nodes.addAll(childNodes);
 				if (buildAST != null) {
@@ -141,6 +143,18 @@ public class Term implements Node {
 	@Override
 	public boolean hasError() {
 		return mError;
+	}
+
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return mFather;
 	}
 
 }

@@ -18,6 +18,7 @@ public class Statement implements Node {
 	private boolean mError;
 	private String mColor;
 	private List<Node> mNodes = null;
+	private Node mFather;
 	public Statement(Assignment pParseAssignment, IfStatement pParseIfStatement, WhileStatement pParseWhileStatement,
 			WriteInt pParseWriteExpression) {
 				mParseAssignment = pParseAssignment;
@@ -77,8 +78,8 @@ public class Statement implements Node {
 	}
 	
 	@Override
-	public Node buildAST() {
-		
+	public Node buildAST(Node father) {
+		mFather = father;
 		return this;
 	}
 	
@@ -94,13 +95,13 @@ public class Statement implements Node {
 		if (mNodes == null) {
 			List<Node> nodes = new ArrayList<Node>();
 			if (mParseAssignment != null) {
-				nodes.add(mParseAssignment.buildAST());
+				nodes.add(mParseAssignment.buildAST(this));
 			} else if (mParseIfStatement != null) {
-				nodes.add(mParseIfStatement.buildAST());
+				nodes.add(mParseIfStatement.buildAST(this));
 			} else if (mParseWhileStatement != null) {
-				nodes.add(mParseWhileStatement.buildAST());
+				nodes.add(mParseWhileStatement.buildAST(this));
 			} else if (mParseWriteExpression != null) {
-				nodes.add(mParseWriteExpression.buildAST());
+				nodes.add(mParseWriteExpression.buildAST(this));
 			}
 			mNodes = nodes;
 		}
@@ -155,4 +156,14 @@ public class Statement implements Node {
 		return mError;
 	}
 
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return mFather;
+	}
 }

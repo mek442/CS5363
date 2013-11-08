@@ -13,6 +13,7 @@ public class Type implements Node {
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
 	private boolean mError;
 	private String mColor;
+	private Node mFather;
 
 	public Type(TokenWord pType) {
 		this.type = pType;
@@ -56,7 +57,8 @@ public class Type implements Node {
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node father) {
+		this.mFather = father;
 		return this;
 	}
 
@@ -114,4 +116,15 @@ public class Type implements Node {
 		return mError;
 	}
 
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return mFather;
+	}
 }

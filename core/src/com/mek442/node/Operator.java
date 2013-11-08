@@ -15,6 +15,7 @@ public class Operator implements Node{
 	Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
 	private String mColor;
 	private boolean mError;
+	private Node mFather = null;
 	
 	 public Operator(TokenWord pTokenWord) {
 		// TODO Auto-generated constructor stub
@@ -28,8 +29,9 @@ public class Operator implements Node{
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node fahter) {
 		// TODO Auto-generated method stub
+		mFather = fahter;
 		return this;
 	}
 
@@ -90,5 +92,17 @@ public class Operator implements Node{
 	@Override
 	public boolean hasError() {
 		return mError;
+	}
+
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return mFather;
 	}
 }

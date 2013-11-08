@@ -47,7 +47,7 @@ public enum Token {
 	}
 	
 	public static Set<Token> getINTOP() {
-		Set<Token> set = new HashSet<Token>(Arrays.asList(MUL,MOD,DIV,PLUS,MINUS, LT, LT_EQUAL, GT, GT_EQUAL));
+		Set<Token> set = new HashSet<Token>(Arrays.asList(MUL,MOD,DIV,PLUS,MINUS, EQUAL, NOT_EQUAL,LT, LT_EQUAL, GT, GT_EQUAL));
 		return set;
 	}
 	

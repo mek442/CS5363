@@ -20,6 +20,7 @@ public class WhileStatement implements Node {
 	private String mColor;
 	private Node mNode =null;
 	private List<Node> mNodes = null;
+	private Operator mFather;
 
 	public WhileStatement(TokenWord pWhileT, Expression pParseExpression, TokenWord pDOT,
 			StatementSequence pParseStatementSequences, TokenWord pEndT) {
@@ -114,11 +115,12 @@ public class WhileStatement implements Node {
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node father) {
 		if (mNode == null) {
 			Operator node = new Operator(mWhile);
+			mFather = node;
 			node.setChilds(getChildNodes());
-			mNode = node;
+			mNode = node.buildAST(father);
 		}
 		return mNode;
 	}
@@ -130,10 +132,12 @@ public class WhileStatement implements Node {
 		if (mNodes == null) {
 			List<Node> nodes = new ArrayList<Node>();
 			if (mParseExpression != null) {
-				nodes.add(mParseExpression.buildAST());
+				nodes.add(mParseExpression.buildAST(mFather));
 			}
 			if (mParseStatementSequences != null) {
-				nodes.add(mParseStatementSequences.buildAST());
+				Operator node = new Operator(mDOT);
+				
+				nodes.add(mParseStatementSequences.buildAST(node));
 			}
 			mNodes = nodes;
 		}
@@ -185,6 +189,17 @@ public class WhileStatement implements Node {
 	@Override
 	public boolean hasError() {
 		return mError;
+	}
+
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

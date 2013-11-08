@@ -20,6 +20,7 @@ public class Assignment implements Node {
 	private String mColor;
 	private Node mNode =null;
 	private List<Node> mNodes = null;
+	private Operator mFather;
 	
 	public Assignment(TokenWord pIdent, TokenWord pAsgn, Assignment1 pParseAssignment1) {
 		mIdent = pIdent;
@@ -89,11 +90,12 @@ public class Assignment implements Node {
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node father) {
         if(mNode==null){
 		Operator node = new Operator(mAsgn);
+		this.mFather = node;
 		node.setChilds(getChildNodes());
-		mNode = node;
+		mNode = node.buildAST(father);
 	   }
 
 		return mNode;
@@ -106,9 +108,9 @@ public class Assignment implements Node {
 		if(mNodes==null){
 		List<Node> nodes = new ArrayList<Node>();
 		Operator iden = new Operator(mIdent);
-		nodes.add(iden);
+		nodes.add(iden.buildAST(mFather));
 		if (mParseAssignment1 != null) {
-			Node buildAST = mParseAssignment1.buildAST();
+			Node buildAST = mParseAssignment1.buildAST(mFather);
 			 nodes.add(buildAST);
 		}
 		mNodes = nodes;
@@ -164,4 +166,15 @@ public class Assignment implements Node {
 		return mError;
 	}
 
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

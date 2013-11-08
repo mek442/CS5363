@@ -110,7 +110,7 @@ public class Program implements Node{
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node father) {
 		
 		return this;
 	}
@@ -122,10 +122,10 @@ public class Program implements Node{
 		if (mNodes == null) {
 			List<Node> nodes = new ArrayList<Node>();
 			if (declarations != null) {
-				nodes.add(declarations.buildAST());
+				nodes.add(declarations.buildAST(this));
 			}
 			if (statementSequence != null) {
-				nodes.add(statementSequence.buildAST());
+				nodes.add(statementSequence.buildAST(this));
 			}
 			mNodes = nodes;
 		}
@@ -179,6 +179,18 @@ public class Program implements Node{
 	@Override
 	public boolean hasError() {
 		return mError;
+	}
+
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

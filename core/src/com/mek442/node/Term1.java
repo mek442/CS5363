@@ -18,6 +18,7 @@ public class Term1 implements Node {
 	
 	private Node mNode =null;
 	private List<Node> mNodes = null;
+	private Operator mFather;
 	
 	public Term1(TokenWord pToken, Factor pParseFactor) {
 		mToken = pToken;
@@ -82,14 +83,15 @@ public class Term1 implements Node {
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node father) {
 		
 	
 		if(mToken!=null && mNode==null){
 			
 			Operator node = new Operator(mToken);
+			this.mFather = node;
 			node.setChilds(getChildNodes());
-			mNode = node;
+			mNode = node.buildAST(father);
 		}
 		
 		
@@ -105,7 +107,7 @@ public class Term1 implements Node {
 			List<Node> nodes = new ArrayList<Node>();
 
 			if (mParseFactor != null) {
-				nodes.add(mParseFactor.buildAST());
+				nodes.add(mParseFactor.buildAST(mFather));
 			}
 			mNodes = nodes;
 		}
@@ -160,4 +162,15 @@ public class Term1 implements Node {
 		return mError;
 	}
 
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

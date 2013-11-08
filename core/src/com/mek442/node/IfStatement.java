@@ -21,6 +21,7 @@ public class IfStatement implements Node {
 	private String mColor;
 	private Node mNode =null;
 	private List<Node> mNodes = null;
+	private Node father =null;
 
 	public IfStatement(TokenWord pIfT, Expression pParseExpression, TokenWord pThenT,
 			StatementSequence pParseStatementSequences, ElseClause pParseElseExpression, TokenWord pEndT) {
@@ -124,11 +125,13 @@ public class IfStatement implements Node {
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node father) {
 		if (mNode == null) {
 			Operator node = new Operator(mIfToken);
+			this.father= node;
 			node.setChilds(getChildNodes());
-			mNode = node;
+			mNode = node.buildAST(father);
+			
 		}
 
 		return mNode;
@@ -142,20 +145,23 @@ public class IfStatement implements Node {
 			List<Node> nodes = new ArrayList<Node>();
 			List<Node> nodesthen = new ArrayList<Node>();
 			if (mParseExpression != null) {
-				nodes.add(mParseExpression.buildAST());
+				nodes.add(mParseExpression.buildAST(this.father));
 			}
 			Operator node = new Operator(mThenToken);
-
+			node = (Operator)node.buildAST(this.father);
+			
 			if (mParseStatementSequences != null) {
-				nodesthen.add(mParseStatementSequences.buildAST());
+				nodesthen.add(mParseStatementSequences.buildAST(node));
+				node.setChilds(nodesthen);
+				nodes.add(node);
 			}
 
 			if (mParseStatementSequences != null) {
-				nodesthen.add(mParseElseExpression.buildAST());
+				nodes.add(mParseElseExpression.buildAST(this.father));
 			}
-			node.setChilds(nodesthen);
+			//node.setChilds(nodesthen);
 
-			nodes.add(node);
+			//nodes.add(node);
 			mNodes = nodes;
 		}
 		return mNodes;
@@ -207,6 +213,18 @@ public class IfStatement implements Node {
 	@Override
 	public boolean hasError() {
 		return mError;
+	}
+
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

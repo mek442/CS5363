@@ -17,6 +17,7 @@ public class ElseClause implements Node{
 	private String mColor;
 	private Node mNode =null;
 	private List<Node> mNodes = null;
+	private Node mFather =null;
 
 	public ElseClause(TokenWord pToken, StatementSequence pParseStatementSequences) {
 		mToken = pToken;
@@ -40,11 +41,12 @@ public class ElseClause implements Node{
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node father) {
 		if (mNode == null) {
 			Operator node = new Operator(mToken);
+			this.mFather = node;
 			node.setChilds(getChildNodes());
-			mNode = node;
+			mNode = node.buildAST(father);
 		}
 		return mNode;
 	}
@@ -57,7 +59,7 @@ public class ElseClause implements Node{
 			List<Node> nodes = new ArrayList<Node>();
 
 			if (mParseStatementSequences != null) {
-				nodes.add(mParseStatementSequences.buildAST());
+				nodes.add(mParseStatementSequences.buildAST(this.mFather));
 			}
 			mNodes = nodes;
 		}
@@ -155,5 +157,16 @@ public class ElseClause implements Node{
 		return mError;
 	}
 
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+ 
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

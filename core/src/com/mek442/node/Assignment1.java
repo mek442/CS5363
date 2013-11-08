@@ -17,6 +17,7 @@ public class Assignment1 implements Node {
 	private boolean mError;
 	private String mColor;
 	private List<Node> mNodes = null;
+	private Node mFather;
 
 	public Assignment1(TokenWord pWord, Expression pParseExpression) {
 		mTokenWord = pWord;
@@ -64,8 +65,8 @@ public class Assignment1 implements Node {
 	}
 	
 	@Override
-	public Node buildAST() {
-		
+	public Node buildAST(Node father) {
+		this.mFather = father;
 		return this;
 	}
 	
@@ -83,7 +84,7 @@ public class Assignment1 implements Node {
 		if (mNodes == null) {
 			List<Node> nodes = new ArrayList<Node>();
 			if (mParseExpression != null) {
-				nodes.add(mParseExpression.buildAST());
+				nodes.add(mParseExpression.buildAST(this));
 			} else if (mTokenWord != null && mTokenWord.getWord() != Token.READINT) {
 				nodes.add(new Operator(mTokenWord));
 			}
@@ -140,4 +141,14 @@ public class Assignment1 implements Node {
 		return mError;
 	}
 
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+ @Override
+public Node getFather() {
+	// TODO Auto-generated method stub
+	return mFather;
+}
 }

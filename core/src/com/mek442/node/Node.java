@@ -11,7 +11,7 @@ public interface Node {
 
 	public TokenWord getTokenValue();
 	public List<Node> getChildNodes();
-	public Node buildAST();
+	public Node buildAST(Node father);
 	public String getColor();
 	public void setColor(String pColor);
 	public boolean hasError();
@@ -20,4 +20,6 @@ public interface Node {
 	public void setCount(int count);
 	public Map<String, Attribute> getAttributes();
 	public void setAttribute(String key, Attribute pAttribute);
+	public boolean isDeclaration();
+	public Node getFather();
 }

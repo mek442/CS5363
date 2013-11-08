@@ -16,6 +16,7 @@ public class SimpleExpression implements Node {
 	private boolean mError;
 	private String mColor;
 	private List<Node> mNodes = null;
+	private Node mFather;
 	public SimpleExpression(Term pParseTerm, SimpleExpression1 pParseSimpleExpression1) {
 		mParseTerm = pParseTerm;
 		mParseSimpleExpression1 = pParseSimpleExpression1;
@@ -62,8 +63,8 @@ public class SimpleExpression implements Node {
 	}
 
 	@Override
-	public Node buildAST() {
-
+	public Node buildAST(Node father) {
+		mFather = father;
 		return this;
 	}
 
@@ -76,10 +77,10 @@ public class SimpleExpression implements Node {
 			List<Node> nodes = new ArrayList<Node>();
 			List<Node> nodeOP = new ArrayList<Node>();
 			if (mParseTerm != null) {
-				nodes.add(mParseTerm.buildAST());
+				nodes.add(mParseTerm.buildAST(this));
 			}
 			if (mParseSimpleExpression1 != null) {
-				Operator buildAST = (Operator) mParseSimpleExpression1.buildAST();
+				Operator buildAST = (Operator) mParseSimpleExpression1.buildAST(this);
 				List<Node> childNodes = mParseSimpleExpression1.getChildNodes();
 				nodes.addAll(childNodes);
 				if (buildAST != null) {
@@ -144,5 +145,15 @@ public class SimpleExpression implements Node {
 		return mError;
 	}
 
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return mFather;
+	}
 }

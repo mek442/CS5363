@@ -19,6 +19,7 @@ Map<String,Attribute> mAttributes = new HashMap<String,Attribute>();
 private boolean mError;
 private String mColor;
 private List<Node> mNodes = null;
+private Node father=null;
 
 	
 	public Declaration(TokenWord pTokenVar, TokenWord pTokenID, TokenWord pTokenAs, Type pParseType, TokenWord pTokenSc, Declaration pDeclaration) {
@@ -141,7 +142,8 @@ private List<Node> mNodes = null;
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node father) {
+		this.father = father;
 		return this;
 	}
 
@@ -153,14 +155,20 @@ private List<Node> mNodes = null;
 			List<Node> nodeType = new ArrayList<Node>();
 
 			if (mTokenIdent != null) {
-				Operator nodeVar = new Operator(mTokenIdent);
-				nodeType.add(mType.buildAST());
+				Operator nodeVar = new Operator(mTokenIdent){
+					@Override
+					public boolean isDeclaration() {
+						// TODO Auto-generated method stub
+						return true;
+					}
+				};
+				nodeType.add(mType.buildAST(nodeVar));
 				nodeVar.setChilds(nodeType);
-				nodes.add(nodeVar);
+				nodes.add(nodeVar.buildAST(this));
 			}
 
 			if (mDeclaration != null) {
-				nodes.add(mDeclaration.buildAST());
+				nodes.add(mDeclaration.buildAST(this));
 			}
 			mNodes = nodes;
 		}
@@ -213,6 +221,18 @@ private List<Node> mNodes = null;
 	@Override
 	public boolean hasError() {
 		return mError;
+	}
+
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return father;
 	}
 
 }

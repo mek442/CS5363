@@ -6,17 +6,18 @@ program
 begin
     X := readInt ;
 	Z := 2147483649 ;
+	
     if X > 1 then
         X := Y div 2 ;
         X := X - 1 ;
     end ;
 
 		Y := true ;
-		while Y = true do
-        if X <= true then
-            X := X * ( 1 + X ) + true ;
+		while Z >= 2 do
+        if X <= 1 then
+            X := X * ( 1 + X )  ;
         else
-            Y := readInt ;
+            Y := 3 < 5 ;
         end ;
     end ;
 

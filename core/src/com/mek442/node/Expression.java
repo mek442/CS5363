@@ -16,6 +16,7 @@ public class Expression implements Node{
 	private boolean mError;
 	private String mColor;
 	private List<Node> mNodes = null;
+	private Node mFather;
 	
 
 	public Expression(SimpleExpression pParseSimpleExpression, Expression1 pExpression1) {
@@ -65,8 +66,8 @@ public class Expression implements Node{
 	}
 
 	@Override
-	public Node buildAST() {
-		
+	public Node buildAST(Node father) {
+		this.mFather = father;
 		return this;
 	}
 
@@ -80,10 +81,10 @@ public class Expression implements Node{
 			List<Node> nodes = new ArrayList<Node>();
 			List<Node> nodeOP = new ArrayList<Node>();
 			if (mParseSimpleExpression != null) {
-				nodes.add(mParseSimpleExpression.buildAST());
+				nodes.add(mParseSimpleExpression.buildAST(this));
 			}
 			if (mExpression1 != null) {
-				Operator buildAST = (Operator) mExpression1.buildAST();
+				Operator buildAST = (Operator) mExpression1.buildAST(this);
 				List<Node> childNodes = mExpression1.getChildNodes();
 				nodes.addAll(childNodes);
 				if (buildAST != null) {
@@ -144,6 +145,18 @@ public class Expression implements Node{
 	@Override
 	public boolean hasError() {
 		return mError;
+	}
+
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return mFather;
 	}
 
 }

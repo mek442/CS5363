@@ -18,6 +18,7 @@ public class WriteInt implements Node{
 	private String mColor;
 	private Node mNode =null;
 	private List<Node> mNodes = null;
+	private Operator mFather;
 
 	public WriteInt(TokenWord pToken, Expression pParseExpression) {
 		mToken = pToken;
@@ -68,13 +69,14 @@ public class WriteInt implements Node{
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node father) {
 
 		if (mToken != null && mNode == null) {
 
 			Operator node = new Operator(mToken);
+			this.mFather =node;
 			node.setChilds(getChildNodes());
-			mNode = node;
+			mNode = node.buildAST(father);
 		}
 
 		return mNode;
@@ -92,7 +94,7 @@ public class WriteInt implements Node{
 		if (mNodes == null) {
 			List<Node> nodes = new ArrayList<Node>();
 			if (mParseExpression != null) {
-				nodes.add(mParseExpression.buildAST());
+				nodes.add(mParseExpression.buildAST(this.mFather));
 			}
 			mNodes = nodes;
 		}
@@ -144,6 +146,18 @@ public class WriteInt implements Node{
 	@Override
 	public boolean hasError() {
 		return mError;
+	}
+
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

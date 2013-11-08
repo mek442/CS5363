@@ -18,6 +18,7 @@ public class Expression1 implements Node{
 	private String mColor;
 	private Node mNode =null;
 	private List<Node> mNodes = null;
+	private Node mFather = null;
 
 	public Expression1(TokenWord pWord, SimpleExpression pParseSimpleExpression) {
 		mToken = pWord;
@@ -83,14 +84,15 @@ public class Expression1 implements Node{
 	}
 
 	@Override
-	public Node buildAST() {
+	public Node buildAST(Node father) {
 		
 		
 		if(mToken!=null && mNode==null){
 			
 			Operator node = new Operator(mToken);
+			this.mFather = node;
 			node.setChilds(getChildNodes());
-			mNode = node;
+			mNode = node.buildAST(father);
 		}
 		
 		
@@ -105,7 +107,7 @@ public class Expression1 implements Node{
 			List<Node> nodes = new ArrayList<Node>();
 
 			if (mParseSimpleExpression != null) {
-				nodes.add(mParseSimpleExpression.buildAST());
+				nodes.add(mParseSimpleExpression.buildAST(mFather));
 			}
 			mNodes = nodes;
 		}
@@ -158,6 +160,18 @@ public class Expression1 implements Node{
 	@Override
 	public boolean hasError() {
 		return mError;
+	}
+
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

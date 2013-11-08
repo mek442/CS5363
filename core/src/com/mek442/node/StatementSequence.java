@@ -18,6 +18,7 @@ public class StatementSequence implements Node{
 	private boolean mError;
 	private String mColor;
 	private List<Node> mNodes = null;
+	private Node mFather;
 	
 
 	public StatementSequence(Statement pStatement, TokenWord pSc, StatementSequence pParseStatementSequences) {
@@ -94,8 +95,8 @@ public class StatementSequence implements Node{
 	}
 
 	@Override
-	public Node buildAST() {
-		
+	public Node buildAST(Node father) {
+		mFather = father;
 		return this;
 	}
 
@@ -105,10 +106,10 @@ public class StatementSequence implements Node{
 		if (mNodes == null) {
 			List<Node> nodes = new ArrayList<Node>();
 			if (mStatement != null) {
-				nodes.add(mStatement.buildAST());
+				nodes.add(mStatement.buildAST(this));
 			}
 			if (mParseStatementSequences != null) {
-				nodes.add(mParseStatementSequences.buildAST());
+				nodes.add(mParseStatementSequences.buildAST(this));
 			}
 			mNodes = nodes;
 		}
@@ -164,4 +165,14 @@ public class StatementSequence implements Node{
 		return mError;
 	}
 
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return mFather;
+	}
 }

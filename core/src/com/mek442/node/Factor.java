@@ -18,6 +18,7 @@ public class Factor implements Node {
 	private boolean mError;
 	private String mColor;
 	private List<Node> mNodes = null;
+	private Node mFather =null;
 
 	public Factor(TokenWord pToken, Expression pParseExpression, TokenWord pToken2) {
 		mTokenStart = pToken;
@@ -94,8 +95,8 @@ public class Factor implements Node {
 
 	
 	
-	public Node buildAST() {
-		
+	public Node buildAST(Node father) {
+		mFather = father;
 		return this;
 	}
 
@@ -108,7 +109,7 @@ public class Factor implements Node {
 		List<Node> nodes = new ArrayList<Node>();
 		if (mParseExpression != null) {
 			nodes.add(new Operator(mTokenStart));
-			nodes.add(mParseExpression.buildAST());
+			nodes.add(mParseExpression.buildAST(this));
 			nodes.add(new Operator(mTokenEnd));
 		} 
 		 mNodes = nodes;
@@ -162,6 +163,20 @@ public class Factor implements Node {
 	@Override
 	public boolean hasError() {
 		return mError;
+	}
+
+	@Override
+	public boolean isDeclaration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	
+
+	@Override
+	public Node getFather() {
+		// TODO Auto-generated method stub
+		return mFather;
 	}
 
 }
