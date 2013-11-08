@@ -45,7 +45,7 @@ public class ParseTreeGenerator {
 
 	}
 
-	public String produceParseTree() {
+	public OutputHolder produceParseTree() {
 		Program program = mParser.startParse();
 		Node buildAST = program.buildAST(null);
 		StringBuffer buffer = new StringBuffer();
@@ -62,7 +62,9 @@ public class ParseTreeGenerator {
 		
 		if(buildAST.hasError()){
 			System.err.println("Failure to produce ILOC, Please Fix the error in the source File");
-			return "";
+			OutputHolder out =new OutputHolder();
+			out.setAST(buffer.toString());
+			return out;
 		}
 
 		Block block = new Block(blockCounter.getCount());
@@ -93,8 +95,10 @@ public class ParseTreeGenerator {
 		blockBuffer.append("entry -> n0" + "\n");
 		blockBuffer.append("n" + counter + " -> " + "exit" + "\n");
 		blockBuffer.append("}");
-
-		return blockBuffer.toString();// buffer.toString();
+        OutputHolder outputHolder = new OutputHolder();
+        outputHolder.setAST( buffer.toString());
+        outputHolder.setILOC(blockBuffer.toString());
+		return outputHolder;// buffer.toString();
 	}
 
 	private void traverseBlock(Block pBlock, StringBuffer buffer) {

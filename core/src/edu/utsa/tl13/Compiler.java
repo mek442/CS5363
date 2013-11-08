@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import com.mek442.parser.Parser;
+import com.mek442.tl13.OutputHolder;
 import com.mek442.tl13.ParseTreeGenerator;
 
 public class Compiler {
@@ -12,7 +13,11 @@ public class Compiler {
 	 public Compiler(String inputFile, String outPutFile) throws FileNotFoundException  {
 		Parser parser = new Parser(inputFile);
 		treeGenerator = new ParseTreeGenerator(parser);
-		treeGenerator.writToFile(treeGenerator.produceParseTree(), outPutFile);
+		OutputHolder Outputtree = treeGenerator.produceParseTree();
+		treeGenerator.writToFile(Outputtree.getAST(), outPutFile+".ast.dot");
+		System.out.println("Output file: " + outPutFile+".ast.dot");
+		treeGenerator.writToFile(Outputtree.getILOC(), outPutFile+".iloc.cfg.dot");
+		System.out.println("Output file: " + outPutFile+".iloc.cfg.dot");
 	}
 	
 	public static void main(String[] args) throws IOException {
@@ -25,10 +30,9 @@ public class Compiler {
 		else
 			throw new RuntimeException("inputFileName does not end in .tl13");
 
-		String parseOutName = baseName + ".iloc.cfg.dot";
+		String parseOutName = baseName ;
 
 		System.out.println("Input file: " + inputFileName);
-		System.out.println("Output file: " + parseOutName);
 
 		Compiler compiler = new Compiler(inputFileName, parseOutName);
 	}
