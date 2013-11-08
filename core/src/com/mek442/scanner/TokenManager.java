@@ -81,7 +81,7 @@ public class TokenManager {
 	public static void main(String[] args) {
 		TokenManager scanner = null;
 	        try {
-	            scanner = new TokenManager("C:\\jagsource\\test1.txt");
+	            scanner = new TokenManager("C:\\Users\\Mostafa\\git\\mek442\\core\\tests\\simple1.tl13");
 	        } catch (FileNotFoundException e) {
 	        	
 	             e.printStackTrace();

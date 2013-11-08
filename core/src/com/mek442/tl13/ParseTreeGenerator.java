@@ -623,7 +623,7 @@ public class ParseTreeGenerator {
 			} else if (currentToekn == Token.BOOLLIT) {
 				Attribute temp = father.getAttributes().get("type");
 				if (temp != null && temp.getValue() != Token.BOOL) {
-					System.err.println("TYPE_ERROR " + Token.BOOLLIT + " " + pNode.getCount() + " " + temp.getValue());
+					System.err.println("TYPE_ERROR " + Token.BOOLLIT + " " + pNode.getTokenValue().getLineNumber() + " " + temp.getValue());
 					isError = true;
 				} else {
 					Attribute attribute = new Attribute();
