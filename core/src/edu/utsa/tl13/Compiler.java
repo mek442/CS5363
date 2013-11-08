@@ -25,7 +25,7 @@ public class Compiler {
 		else
 			throw new RuntimeException("inputFileName does not end in .tl13");
 
-		String parseOutName = baseName + ".ast.dot";
+		String parseOutName = baseName + ".iloc.cfg.dot";
 
 		System.out.println("Input file: " + inputFileName);
 		System.out.println("Output file: " + parseOutName);

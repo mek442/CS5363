@@ -59,6 +59,11 @@ public class ParseTreeGenerator {
 		buffer.append(output);
 		printTree(buildAST, null, buffer);
 		buffer.append("\n" + "}");
+		
+		if(buildAST.hasError()){
+			System.err.println("Failure to produce ILOC, Please Fix the error in the source File");
+			return "";
+		}
 
 		Block block = new Block(blockCounter.getCount());
 		mBlockMap.put(block.getLabel(), block);
