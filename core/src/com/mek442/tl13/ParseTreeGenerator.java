@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,10 +88,17 @@ public class ParseTreeGenerator {
 		blockBuffer.append("digraph graphviz { " + "\n" + " node [shape = none]; " + "\n" + "  edge [tailport = s]; "
 				+ "\n" + " entry  " + "\n" + "subgraph cluster { " + "\n" + " color=\"/x11/white\" " + "\n");
 		
-		Block block2 = mBlockMap.get("B"+(blockCounter.getCount()-1));
-		block2.setBlock(block2.getBlock().concat("\n"+ "exit"));
+		Block block2 =findBlock();
+		//Block block2 = mBlockMap.get("B"+counter);
+		//block2.setBlock(block2.getBlock().concat("\n"+ "exit"));
+				
+		
+		MipsCodeGenerator mips = new MipsCodeGenerator();
+		Map  newBlockMap = copyDeep(mBlockMap);
+		
 		
 		traverseBlock(mBlockMap.get("B0"), blockBuffer);
+		
 		blockBuffer.append("}");
 		blockBuffer.append("entry -> n0" + "\n");
 		blockBuffer.append("n" + counter + " -> " + "exit" + "\n");
@@ -98,7 +106,45 @@ public class ParseTreeGenerator {
         OutputHolder outputHolder = new OutputHolder();
         outputHolder.setAST( buffer.toString());
         outputHolder.setILOC(blockBuffer.toString());
+        mips.generateCode(newBlockMap);
 		return outputHolder;// buffer.toString();
+	}
+
+	private Block findBlock() {
+		// TODO Auto-generated method stub
+		Set<String> keySet = mBlockMap.keySet();
+		for (String string : keySet) {
+			Block block = mBlockMap.get(string);
+			List<String> children = block.getChildren();
+			if(children.isEmpty()){
+				
+			 block.setBlock( block.getBlock()+"\n"+ "exit");
+			 return block;
+			}
+		}
+		 return null;	
+		}
+
+	private Map copyDeep(Map<String, Block> pBlockMap) {
+		Map<String, Block> blockMap = new HashMap<String, Block>();
+		Set<String> keySet = pBlockMap.keySet();
+		
+		for (String string : keySet) {
+			
+			Block block = pBlockMap.get(string);
+			Block newBlock = new Block(block.getNumber());
+			newBlock.setBlock(block.getBlock());
+			newBlock.setLabel(block.getLabel());
+			List<String> children = block.getChildren();
+			for (String child : children) {
+				
+				newBlock.setChildren(child)	;
+			}
+			
+			blockMap.put(string, newBlock);
+			
+		}
+		return blockMap;
 	}
 
 	private void traverseBlock(Block pBlock, StringBuffer buffer) {
@@ -128,6 +174,7 @@ public class ParseTreeGenerator {
 	}
 
 	private String decorateTable(Block pBlock) {
+		
 		StringBuffer table = new StringBuffer();
 		table.append("<<table border='0'> <tr><td border='1'>" + pBlock.getLabel() + "</td> </tr>");
 		String block = pBlock.getBlock();
@@ -195,7 +242,7 @@ public class ParseTreeGenerator {
 					String target = mStack.pop();
 					Block b1 = new Block(blockCounter.getCount());
 					Block b2 = new Block(blockCounter.getCount());
-					mBuffer.append("cbr " + target + " -> " + b1.getLabel() + " , " + b2.getLabel() + "\n");
+					mBuffer.append("cbr " + target + "-> " + b1.getLabel() + " , " + b2.getLabel() + "\n");
 					block.setBlock(mBuffer.toString());
 					block.setProcess(true);
 					mBuffer = new StringBuffer();
@@ -224,7 +271,7 @@ public class ParseTreeGenerator {
 					String target = mStack.pop();
 					Block b1 = new Block(blockCounter.getCount());
 					Block b2 = new Block(blockCounter.getCount());
-					mBuffer.append("cbr " + target + " -> " + b1.getLabel() + " , " + b2.getLabel() + "\n");
+					mBuffer.append("cbr " + target + "-> " + b1.getLabel() + " , " + b2.getLabel() + "\n");
 					mCodes.add(mBuffer.toString());
 					String pop = mStack.pop();
 					Block b = mBlockMap.get(pop);
@@ -278,7 +325,7 @@ public class ParseTreeGenerator {
 
 			} else if (word == Token.WRITEINT) {
 				String target = mStack.pop();
-				mBuffer.append(" writeInt   " + target + "\n");
+				mBuffer.append("writeInt " + target + "\n");
 
 			} else if (word == Token.THEN) {
 				String target = mStack.pop();
@@ -402,7 +449,7 @@ public class ParseTreeGenerator {
 					Block block = mBlockMap.get(target);
 
 					target = mStack.pop();
-					mBuffer.append(" jumpI -> " + target);
+					mBuffer.append("jumpI -> " + target);
 					if (!block.isProcess()) {
 						block.setBlock(block.getBlock().concat(mBuffer.toString()));
 						block.setChildren(target);
@@ -449,7 +496,7 @@ public class ParseTreeGenerator {
 			return "cmp_LE ";
 		} else if (pWord == Token.EQUAL) {
 			return "cmp_EQ ";
-		} else if (pWord == Token.EQUAL) {
+		} else if (pWord == Token.NOT_EQUAL) {
 			return "cmp_NE ";
 		}
 
@@ -542,12 +589,20 @@ public class ParseTreeGenerator {
 				attribute.setName("type");
 				attribute.setValue(Token.INT);
 				pNode.setAttribute(attribute.getName(), attribute);
-				father.setAttribute(attribute.getName(), attribute);
+			
 				if (Token.getArithOP().contains(currentToekn)) {
 					color = "/pastel13/3";
+					Attribute temp = father.getAttributes().get("type");
+					if (temp != null && temp.getValue()==Token.BOOL && temp.getValue() != Token.INT) {
+						System.err.println("TYPE_ERROR " + currentToekn);
+						isError = true;
+						pNode.setError(true);
+					}
 				} else {
 					color = "/pastel13/2";
 				}
+				
+				father.setAttribute(attribute.getName(), attribute);
 			} else if (currentToekn == Token.IF || currentToekn == Token.WHILE) {
 				Attribute attribute = new Attribute();
 				attribute.setName("type");
@@ -560,9 +615,10 @@ public class ParseTreeGenerator {
 				TokenWord word = pNode.getTokenValue();
 				long value = Long.parseLong(word.getIdentifier().trim());
 				Attribute temp = father.getAttributes().get("type");
-				if (temp != null && temp.getValue() != Token.INT) {
+				if (temp != null && temp.getValue()==Token.BOOL &&temp.getValue() != Token.INT) {
 					System.err.println("TYPE_ERROR " + Token.NUM);
 					isError = true;
+					pNode.setError(true);
 				} else if (value > 2147483647 || value < 0) {
 					System.err.println("TYPE_ERROR " + Token.NUM);
 					isError = true;

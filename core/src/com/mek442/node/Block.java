@@ -14,6 +14,7 @@ public class Block {
 	Token mToken = null;
 	boolean isProcess = false;
 	boolean isWithElse = false;
+	private String assemblyLabel="";
 	public Block(int number){
 	 mNumber = number;	
 	}
@@ -80,4 +81,7 @@ public class Block {
 		return isWithElse;
 	}
 
+	public String getAssemblyLabel() {
+		return mLabel;
+	}
 }
