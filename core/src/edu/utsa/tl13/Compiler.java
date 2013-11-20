@@ -18,6 +18,8 @@ public class Compiler {
 		System.out.println("Output file: " + outPutFile+".ast.dot");
 		treeGenerator.writToFile(Outputtree.getILOC(), outPutFile+".iloc.cfg.dot");
 		System.out.println("Output file: " + outPutFile+".iloc.cfg.dot");
+		treeGenerator.writToFile(Outputtree.getMIPS(), outPutFile+".s");
+		System.out.println("Output file: " + outPutFile+".s");
 	}
 	
 	public static void main(String[] args) throws IOException {

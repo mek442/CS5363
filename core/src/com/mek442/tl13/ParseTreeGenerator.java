@@ -106,7 +106,8 @@ public class ParseTreeGenerator {
         OutputHolder outputHolder = new OutputHolder();
         outputHolder.setAST( buffer.toString());
         outputHolder.setILOC(blockBuffer.toString());
-        mips.generateCode(newBlockMap);
+        String mipsoutput =mips.generateCode(newBlockMap);
+        outputHolder.setMIPS(mipsoutput);
 		return outputHolder;// buffer.toString();
 	}
 

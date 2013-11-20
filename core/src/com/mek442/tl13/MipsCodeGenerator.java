@@ -16,10 +16,17 @@ public class MipsCodeGenerator {
 	int fp = 0;
 	int labelCounter = 0;
 
-	public void generateCode(Map<String, Block> pBlockMap) {
+	public String generateCode(Map<String, Block> pBlockMap) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(".data" + "\n");
+		buffer.append("newline:	.asciiz \"\\n\""  + " \n");
+		buffer.append(".text " + "\n");
+		buffer.append(".globl main " + "\n");
+		buffer.append("main: " + "\n" + " li $fp, 0x7ffffffc " + "\n");
 
 		mBlockMap = pBlockMap;
-		traverseBlock(mBlockMap.get("B0"), null);
+		traverseBlock(mBlockMap.get("B0"), buffer);
+		return buffer.toString();
 	}
 
 	private void traverseBlock(Block pBlock, StringBuffer buffer) {
@@ -72,7 +79,9 @@ public class MipsCodeGenerator {
 
 		}
 		
-		System.out.println(code.toString());
+		buffer.append(code.toString());
+		buffer.append("\n");
+		buffer.append("\n");
 		pBlock.setVisited(true);
 		List<String> children = pBlock.getChildren();
 		for (String string : children) {
