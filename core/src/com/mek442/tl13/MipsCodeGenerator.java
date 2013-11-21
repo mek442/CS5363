@@ -99,7 +99,15 @@ public class MipsCodeGenerator {
 		switch (instruction.getOpCode()) {
 		case "loadI":
 			int local = 0;
-			buffer.append("li $t0, " + instruction.getSource1());
+			String value = instruction.getSource1();
+			if(instruction.getSource1().equalsIgnoreCase("true")){
+				value ="1";
+			}
+			
+			if(instruction.getSource1().equalsIgnoreCase("false")){
+				value ="0";
+			}
+			buffer.append("li $t0, " + value);
 			if (isVariable(instruction.getSource2())) {
 				Integer temp = varStackP.get(instruction.getSource2());
 				if (temp == null) {
@@ -361,8 +369,12 @@ public class MipsCodeGenerator {
 			buffer.append("sw $t0, " + temp + "($fp)");
 			break;
 		case "cbr":
-			res = instruction.getSource1().split("_");
-			local = fp - Integer.valueOf(res[1]) * 4;
+			if (isVariable(instruction.getSource1())) {
+				local = varStackP.get(instruction.getSource1());
+			} else {
+				res = instruction.getSource1().split("_");
+				local = fp - Integer.valueOf(res[1]) * 4;
+			}
 			buffer.append("lw $t0, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("bne $t0, $zero," + instruction.getSource2());
