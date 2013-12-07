@@ -18,8 +18,19 @@ public class Compiler {
 		System.out.println("Output file: " + outPutFile+".ast.dot");
 		treeGenerator.writToFile(Outputtree.getILOC(), outPutFile+".iloc.cfg.dot");
 		System.out.println("Output file: " + outPutFile+".iloc.cfg.dot");
+		treeGenerator.writToFile(Outputtree.getCfgAfterPhi(), outPutFile+".phi.cfg.dot");
+		System.out.println("Output file: " + outPutFile+".phi.cfg.dot");
+		treeGenerator.writToFile(Outputtree.getCfgAfterRenaming(), outPutFile+".rename_phi.cfg.dot");
+		System.out.println("Output file: " + outPutFile+".rename_phi.cfg.dot");
+		treeGenerator.writToFile(Outputtree.getCfgOptimized(), outPutFile+".optimised.cfg.dot");
+		System.out.println("Output file: " + outPutFile+".optimised.cfg.dot");
+		treeGenerator.writToFile(Outputtree.getCFGRemovePhi(), outPutFile+".removed_phi.cfg.dot");
+		System.out.println("Output file: " + outPutFile+".removed_phi.cfg.dot");
+		
 		treeGenerator.writToFile(Outputtree.getMIPS(), outPutFile+".s");
 		System.out.println("Output file: " + outPutFile+".s");
+		treeGenerator.writToFile(Outputtree.getOptimiseMIPS(), outPutFile+"_optimised.s");
+		System.out.println("Output file: " + outPutFile+"_optimised.s");
 	}
 	
 	public static void main(String[] args) throws IOException {

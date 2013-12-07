@@ -15,25 +15,62 @@ public class MipsCodeGenerator {
 	Map<String, Integer> varStackP = new HashMap<String, Integer>();
 	int fp = 0;
 	int labelCounter = 0;
+	boolean mFlag = false;
 
-	public String generateCode(Map<String, Block> pBlockMap) {
+	public String generateCode(Map<String, Block> pBlockMap, boolean flag) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(".data" + "\n");
-		buffer.append("newline:	.asciiz \"\\n\""  + " \n");
+		buffer.append("newline:	.asciiz \"\\n\"" + " \n");
 		buffer.append(".text " + "\n");
 		buffer.append(".globl main " + "\n");
 		buffer.append("main: " + "\n" + " li $fp, 0x7ffffffc " + "\n");
 
 		mBlockMap = pBlockMap;
-		traverseBlock(mBlockMap.get("B0"), buffer);
+		mFlag = flag;
+		traverseBlock(mBlockMap.get("B0"), buffer, flag);
 		return buffer.toString();
 	}
 
-	private void traverseBlock(Block pBlock, StringBuffer buffer) {
+	private void traverseBlock(Block pBlock, StringBuffer buffer, boolean flag) {
 		if (pBlock == null) {
 			return;
 		}
-		
+		List<Instruction> insList = null;
+		if (flag) {
+			insList = getInstructionList(pBlock);
+		} else {
+			insList = pBlock.getInstructions();
+		}
+
+		StringBuffer code = new StringBuffer();
+		if(flag){
+		code.append(pBlock.getAssemblyLabel() + " :");
+		}else{
+			code.append(pBlock.getLabel() + " :");	
+		}
+		code.append("\n");
+
+		for (Instruction instruction : insList) {
+
+			code.append(produceAssembly(instruction));
+
+		}
+
+		buffer.append(code.toString());
+		buffer.append("\n");
+		buffer.append("\n");
+		pBlock.setVisited(true);
+		List<String> children = pBlock.getChildren();
+		for (String string : children) {
+			Block block = mBlockMap.get(string);
+
+			if (block != null && !block.isVisited())
+				traverseBlock(block, buffer, flag);
+
+		}
+	}
+
+	private List<Instruction> getInstructionList(Block pBlock) {
 		String sblock = pBlock.getBlock();
 		List<Instruction> insList = new ArrayList<Instruction>();
 		String[] split = sblock.trim().split("\n");
@@ -42,14 +79,13 @@ public class MipsCodeGenerator {
 			String ins = split[i];
 			ins = ins.replace("=>", "");
 			ins = ins.replace("->", "");
-			
-			
+
 			String[] split2 = ins.split(regexp);
-			
+
 			Instruction tempIns = new Instruction();
 			if (split2.length > 0) {
 				String opcode = split2[0].trim();
-				
+
 				tempIns.setOpCode(opcode);
 			}
 			if (split2.length > 1) {
@@ -65,32 +101,12 @@ public class MipsCodeGenerator {
 				tempIns.setDestication(opcode);
 			}
 
-			if (split2.length > 0) {insList.add(tempIns);}
-			
-		}
-
-		StringBuffer code = new StringBuffer();
-		code.append(pBlock.getAssemblyLabel() +" :");
-		code.append("\n");
-		
-		for (Instruction instruction : insList) {
-			
-			code.append(produceAssembly(instruction));
+			if (split2.length > 0) {
+				insList.add(tempIns);
+			}
 
 		}
-		
-		buffer.append(code.toString());
-		buffer.append("\n");
-		buffer.append("\n");
-		pBlock.setVisited(true);
-		List<String> children = pBlock.getChildren();
-		for (String string : children) {
-			Block block = mBlockMap.get(string);
-
-			if (block != null && !block.isVisited())
-				traverseBlock(block, buffer);
-
-		}
+		return insList;
 	}
 
 	private String produceAssembly(Instruction instruction) {
@@ -100,281 +116,140 @@ public class MipsCodeGenerator {
 		case "loadI":
 			int local = 0;
 			String value = instruction.getSource1();
-			if(instruction.getSource1().equalsIgnoreCase("true")){
-				value ="1";
+			if (instruction.getSource1().equalsIgnoreCase("true")) {
+				value = "1";
 			}
-			
-			if(instruction.getSource1().equalsIgnoreCase("false")){
-				value ="0";
+
+			if (instruction.getSource1().equalsIgnoreCase("false")) {
+				value = "0";
 			}
 			buffer.append("li $t0, " + value);
-			if (isVariable(instruction.getSource2())) {
-				Integer temp = varStackP.get(instruction.getSource2());
-				if (temp == null) {
-
-					local = fp;
-					fp = fp - 4;
-					varStackP.put(instruction.getSource2(), local);
-				}
-			} else {
-				String[] res = instruction.getSource2().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 2);
 			buffer.append("\n");
 			buffer.append("sw $t0, " + local + "($fp)");
 			break;
 		case "add":
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				String[] res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
-			if (isVariable(instruction.getSource2())) {
-				local = varStackP.get(instruction.getSource2());
-			} else {
-				String[] res = instruction.getSource2().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 2);
 			buffer.append("lw $t2, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("addu $t0, $t1, $t2");
 			buffer.append("\n");
-			if (isVariable(instruction.getDestication())) {
-				local = varStackP.get(instruction.getDestication());
-			} else {
-				String[] res = instruction.getDestication().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 3);
 			buffer.append("sw $t0, " + local + "($fp)");
 
 			break;
 
 		case "sub":
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				String[] res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
-			if (isVariable(instruction.getSource2())) {
-				local = varStackP.get(instruction.getSource2());
-			} else {
-				String[] res = instruction.getSource2().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 2);
 			buffer.append("lw $t2, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("subu $t0, $t1, $t2");
 			buffer.append("\n");
-			if (isVariable(instruction.getDestication())) {
-				local = varStackP.get(instruction.getDestication());
-			} else {
-				String[] res = instruction.getDestication().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 3);
 			buffer.append("sw $t0, " + local + "($fp)");
 
 			break;
 
 		case "div":
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				String[] res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
-			if (isVariable(instruction.getSource2())) {
-				local = varStackP.get(instruction.getSource2());
-			} else {
-				String[] res = instruction.getSource2().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 2);
 			buffer.append("lw $t2, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("div $t0, $t1, $t2");
 			buffer.append("\n");
-			if (isVariable(instruction.getDestication())) {
-				local = varStackP.get(instruction.getDestication());
-			} else {
-				String[] res = instruction.getDestication().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 3);
 			buffer.append("sw $t0, " + local + "($fp)");
 			break;
 
 		case "mult":
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				String[] res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
-			if (isVariable(instruction.getSource2())) {
-				local = varStackP.get(instruction.getSource2());
-			} else {
-				String[] res = instruction.getSource2().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 2);
 			buffer.append("lw $t2, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("mul $t0, $t1, $t2");
 			buffer.append("\n");
-			if (isVariable(instruction.getDestication())) {
-				local = varStackP.get(instruction.getDestication());
-			} else {
-				String[] res = instruction.getDestication().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 3);
 			buffer.append("sw $t0, " + local + "($fp)");
 
 			break;
 
 		case "cmp_GT":
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				String[] res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
-			if (isVariable(instruction.getSource2())) {
-				local = varStackP.get(instruction.getSource2());
-			} else {
-				String[] res = instruction.getSource2().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 2);
 			buffer.append("lw $t2, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("sgt $t0, $t1, $t2");
 			buffer.append("\n");
-			if (isVariable(instruction.getDestication())) {
-				local = varStackP.get(instruction.getDestication());
-			} else {
-				String[] res = instruction.getDestication().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 3);
 			buffer.append("sw $t0, " + local + "($fp)");
 
 			break;
 
 		case "cmp_LT":
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				String[] res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
-			if (isVariable(instruction.getSource2())) {
-				local = varStackP.get(instruction.getSource2());
-			} else {
-				String[] res = instruction.getSource2().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 2);
 			buffer.append("lw $t2, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("slt $t0, $t1, $t2");
 			buffer.append("\n");
-			if (isVariable(instruction.getDestication())) {
-				local = varStackP.get(instruction.getDestication());
-			} else {
-				String[] res = instruction.getDestication().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 3);
 			buffer.append("sw $t0, " + local + "($fp)");
 
 			break;
 
 		case "cmp_GE":
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				String[] res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
-			if (isVariable(instruction.getSource2())) {
-				local = varStackP.get(instruction.getSource2());
-			} else {
-				String[] res = instruction.getSource2().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 2);
 			buffer.append("lw $t2, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("sge $t0, $t1, $t2");
 			buffer.append("\n");
-			if (isVariable(instruction.getDestication())) {
-				local = varStackP.get(instruction.getDestication());
-			} else {
-				String[] res = instruction.getDestication().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 3);
 			buffer.append("sw $t0, " + local + "($fp)");
 
 			break;
 
 		case "cmp_LE":
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				String[] res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
-			if (isVariable(instruction.getSource2())) {
-				local = varStackP.get(instruction.getSource2());
-			} else {
-				String[] res = instruction.getSource2().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 2);
 			buffer.append("lw $t2, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("sle $t0, $t1, $t2");
 			buffer.append("\n");
-			if (isVariable(instruction.getDestication())) {
-				local = varStackP.get(instruction.getDestication());
-			} else {
-				String[] res = instruction.getDestication().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 3);
 			buffer.append("sw $t0, " + local + "($fp)");
 
 			break;
 		case "i2i":
-			String[] res = instruction.getSource1().split("_");
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("add $t0, $t1, $zero");
 			buffer.append("\n");
-			Integer temp = varStackP.get(instruction.getSource2());
+			Integer temp = getfpValue(instruction, 2);
+			
 			buffer.append("sw $t0, " + temp + "($fp)");
 			break;
 		case "cbr":
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t0, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("bne $t0, $zero," + instruction.getSource2());
@@ -387,65 +262,35 @@ public class MipsCodeGenerator {
 			break;
 
 		case "cmp_EQ":
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
-			if (isVariable(instruction.getSource2())) {
-				local = varStackP.get(instruction.getSource2());
-			} else {
-				res = instruction.getSource2().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 2);
 			buffer.append("lw $t2, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("seq $t0, $t1, $t2");
 			buffer.append("\n");
-			if (isVariable(instruction.getDestication())) {
-				local = varStackP.get(instruction.getDestication());
-			} else {
-				res = instruction.getDestication().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 3);
 			buffer.append("sw $t0, " + local + "($fp)");
 
 			break;
 
 		case "cmp_NE":
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
-			if (isVariable(instruction.getSource2())) {
-				local = varStackP.get(instruction.getSource2());
-			} else {
-				res = instruction.getSource2().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 2);
 			buffer.append("lw $t2, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("sne $t0, $t1, $t2");
 			buffer.append("\n");
-			if (isVariable(instruction.getDestication())) {
-				local = varStackP.get(instruction.getDestication());
-			} else {
-				res = instruction.getDestication().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 3);
 			buffer.append("sw $t0, " + local + "($fp)");
 
 			break;
 
 		case "jumpI":
-			
+
 			buffer.append("j " + instruction.getSource1());
 			break;
 		case "readInt":
@@ -456,18 +301,13 @@ public class MipsCodeGenerator {
 			buffer.append("add $t0, $v0, $zero");
 			buffer.append("\n");
 
-			buffer.append("sw $t0, " + varStackP.get(instruction.getSource1()) + "($fp)");
+			buffer.append("sw $t0, " + getfpValue(instruction,1) + "($fp)");
 
 			break;
 		case "writeInt":
 			buffer.append("li $v0, 1");
 			buffer.append("\n");
-			if (isVariable(instruction.getSource1())) {
-				local = varStackP.get(instruction.getSource1());
-			} else {
-				res = instruction.getSource1().split("_");
-				local = fp - Integer.valueOf(res[1]) * 4;
-			}
+			local = getOffsetValue(instruction, 1);
 			buffer.append("lw $t1, " + local + "($fp)");
 			buffer.append("\n");
 			buffer.append("add $a0, $t1, $zero");
@@ -494,6 +334,77 @@ public class MipsCodeGenerator {
 		return buffer.toString();
 	}
 
+	private Integer getfpValue(Instruction instruction, int num) {
+		if (mFlag) {
+			if (num == 1) {
+				return varStackP.get(instruction.getSource1());
+			} else if (num == 2) {
+				return varStackP.get(instruction.getSource2());
+			}
+		} else {
+			if (num == 1) {
+				return getNumber(instruction.getSource1());
+			} else if (num == 2) {
+				return getNumber(instruction.getSource2());
+			}
+		}
+		return 0;
+	}
+	
+	
+
+	private int getOffsetValue(Instruction instruction, int num) {
+		int local = 0;
+		if (mFlag) {
+			if (num == 1) {
+				if (isVariable(instruction.getSource1())) {
+					local = varStackP.get(instruction.getSource1());
+				} else {
+					String[] res = instruction.getSource1().split("_");
+					local = fp - Integer.valueOf(res[1]) * 4;
+				}
+			} else if (num == 2) {
+				if (instruction.getOpCode().equalsIgnoreCase("loadI")) {
+					if (isVariable(instruction.getSource2())) {
+						Integer temp = varStackP.get(instruction.getSource2());
+						if (temp == null) {
+
+							local = fp;
+							fp = fp - 4;
+							varStackP.put(instruction.getSource2(), local);
+						}
+					} else {
+						String[] res = instruction.getSource2().split("_");
+						local = fp - Integer.valueOf(res[1]) * 4;
+					}
+				} else {
+					if (isVariable(instruction.getSource2())) {
+						local = varStackP.get(instruction.getSource2());
+					} else {
+						String[] res = instruction.getSource2().split("_");
+						local = fp - Integer.valueOf(res[1]) * 4;
+					}
+				}
+			} else if (num == 3) {
+				if (isVariable(instruction.getDestication())) {
+					local = varStackP.get(instruction.getDestication());
+				} else {
+					String[] res = instruction.getDestication().split("_");
+					local = fp - Integer.valueOf(res[1]) * 4;
+				}
+			}
+		}else{
+			if(num==1){
+				local = getNumber(instruction.getSource1());
+			}else if(num==2){
+				local = getNumber(instruction.getSource2());
+			}else if(num==3){
+				local = getNumber(instruction.getDestication());
+			}
+		}
+		return local;
+	}
+
 	private boolean isVariable(String pSource2) {
 		boolean flag = false;
 		String[] spString = pSource2.split("_");
@@ -506,6 +417,18 @@ public class MipsCodeGenerator {
 
 		return flag;
 
+	}
+	
+	private int getNumber(String pSource) {
+		
+		Integer integer = varStackP.get(pSource);
+		if(integer==null || integer==0){
+			fp = fp -4;
+			varStackP.put(pSource,fp);
+			integer = fp;
+		}
+		
+		return integer;
 	}
 
 }

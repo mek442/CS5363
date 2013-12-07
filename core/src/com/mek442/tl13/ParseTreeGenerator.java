@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+
+
 import com.mek442.node.Attribute;
 import com.mek442.node.Block;
 import com.mek442.node.BlockCounter;
@@ -103,14 +105,25 @@ public class ParseTreeGenerator {
 		blockBuffer.append("entry -> n0" + "\n");
 		blockBuffer.append("n" + counter + " -> " + "exit" + "\n");
 		blockBuffer.append("}");
+		
+		SSAOptimization optimization = new SSAOptimization(mBlockMap);
+		
+		OutputHolder newOutputHolder =optimization.optimization();
+		
         OutputHolder outputHolder = new OutputHolder();
         outputHolder.setAST( buffer.toString());
         outputHolder.setILOC(blockBuffer.toString());
-        String mipsoutput =mips.generateCode(newBlockMap);
+        String mipsoutput =mips.generateCode(newBlockMap,true);
         outputHolder.setMIPS(mipsoutput);
-		return outputHolder;// buffer.toString();
+        
+        newOutputHolder.setAST(outputHolder.getAST());
+        newOutputHolder.setILOC(outputHolder.getILOC());
+        newOutputHolder.setMIPS(outputHolder.getMIPS());
+		return newOutputHolder;// buffer.toString();
 	}
 
+	
+	
 	private Block findBlock() {
 		// TODO Auto-generated method stub
 		Set<String> keySet = mBlockMap.keySet();
@@ -160,6 +173,7 @@ public class ParseTreeGenerator {
 		buffer.append("\n");
 		pBlock.setVisited(true);
 		List<String> children = pBlock.getChildren();
+		
 		for (String string : children) {
 			Block block = mBlockMap.get(string);
 
